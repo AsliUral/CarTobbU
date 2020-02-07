@@ -1,14 +1,14 @@
 const express = require("express"),
   app = express(),
   bodyParser = require("body-parser");
-port = process.env.PORT || 3002;
+port = process.env.PORT || 3000;
 
 const mysql = require("mysql");
 // connection configurations
 const mc = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "enterPasswordhere",
+  password: "<Enter Here Your DB Password>",
   database: "smart-car-park-tobb-etu"
 });
 
@@ -36,5 +36,3 @@ parkZoneRoutes(app);
 
 var carRoutes = require("./app/routes/carRoutes");
 carRoutes(app);
-
-

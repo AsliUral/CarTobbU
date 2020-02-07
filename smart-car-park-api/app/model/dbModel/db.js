@@ -6,11 +6,11 @@ var mysql = require("mysql");
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "enterPasswordhere",
+  password: "Enter Here Your DB Password to Develop",
   database: "smart-car-park-tobb-etu"
 });
 
-connection.connect(function (err) {
+connection.connect(function(err) {
   if (err) throw err;
 });
 
