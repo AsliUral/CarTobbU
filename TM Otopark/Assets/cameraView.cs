@@ -16,8 +16,8 @@ public class cameraView : MonoBehaviour
         m_ViewPositionY = 0;
 
         //This sets the Camera view rectangle to be smaller so you can compare the orthographic view of this Camera with the perspective view of the Main Camera
-        m_ViewWidth = 0.4f;
-        m_ViewHeight = 0.4f;
+        m_ViewWidth = 1.0f;
+        m_ViewHeight = 1.0f;
 
         //This enables the Camera (the one that is orthographic)
         m_OrthographicCamera.enabled = true;
@@ -37,6 +37,17 @@ public class cameraView : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButton(1))
+        {
+            float sensitivity = 1;
+            float x = Input.GetAxis("Mouse X");
+            float y = Input.GetAxis("Mouse Y");
+            m_OrthographicCamera.transform.Translate(new Vector3(-x, -y, 0) * sensitivity);
+        }
+
+        if (Input.GetKey(KeyCode.KeypadPlus))
+            m_OrthographicCamera.orthographicSize -= 0.2f;
+        if (Input.GetKey(KeyCode.KeypadMinus))
+            m_OrthographicCamera.orthographicSize += 0.2f;
     }
 }
