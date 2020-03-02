@@ -64,3 +64,11 @@ class SmartCarParkAPI:
       }
       data = requests.post(url=URL + "/parkingLots", data=parkingLot_data)
       return data
+
+  def handleParking(self, parkingLotID):
+      URL = self.apiEndpoint
+      requests.put(url=URL + "/handleParking" + "/" + str(parkingLotID))
+
+  def handleLeaving(self, parkingLotID):
+      URL = self.apiEndpoint
+      requests.put(url=URL + "/handleLeaving" + "/" + str(parkingLotID))

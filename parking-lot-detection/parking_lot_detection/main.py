@@ -8,12 +8,12 @@ parkZoneID = "1"
 apiKey = "ABCD"
 camera = 'dataset/parking_lot_1.mp4'
 
-smart_car_park_API = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
-parkingLotsResponse = smart_car_park_API.getAllParkingLotsOFParkZone()
+API = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
+parkingLotsResponse = API.getAllParkingLotsOFParkZone()
 parkingLots = generateParkingLots(parkingLotsResponse)
 
 cap = cv2.VideoCapture(camera)
-fps = 25
+fps = 40
 
 if cap.isOpened() == False:
     print(
@@ -23,14 +23,20 @@ while cap.isOpened():
 
     ret, frame = cap.read()
 
+    blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
+    gray = cv2.cvtColor(blur , cv2.COLOR_BGR2GRAY)
+    new_frame = frame.copy()
+    pos_sec = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+
+
     if ret == True:
         for i in range(len(parkingLots)):
+            parkingLots[i].check(pos_sec, gray, API)
             parkingLots[i].draw(frame)
 
         time.sleep(1 / fps)
         cv2.imshow('Tobb Etu Smart Car Park', frame)
 
-        # Press q to quit
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
 
