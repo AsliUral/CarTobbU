@@ -1,0 +1,1 @@
+D:\OPENCV_3.4.9\opencv\build\x64\vc14\bin\opencv_createsamples.exe -vec vector.vec PAUSE

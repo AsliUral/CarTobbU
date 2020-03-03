@@ -1,0 +1,10 @@
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\001
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\002
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\003
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\004
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\005
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\006
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\007
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\008
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\009
+C:\Users\BAG\Documents\GitHub\opencv-haar-classifier-training\negative_images\bg_graz\010
