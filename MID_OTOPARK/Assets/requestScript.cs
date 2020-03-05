@@ -28,15 +28,20 @@ public Transform pos;
                 Debug.Log(www.downloadHandler.text);
             
                 int status = 1;
+              
                 //bu statusu databaseten alınca bu kismi guncelle
                 
                 if(status == 1){
                     Instantiate(spawnee,pos.position + new Vector3(0,(float)0.40,0),pos.rotation);
-                                
+                              
+                }
+     
+                
+             
                 }          
             }
             
             yield return new WaitForSeconds(5);
         }
     }
-}
+
