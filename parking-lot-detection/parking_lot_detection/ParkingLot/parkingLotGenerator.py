@@ -9,7 +9,7 @@ def getPoint(point):
 def generateParkingLots(parkingLotsResponse):
     parkingLots = []
     for i in range(len(parkingLotsResponse)):
-        if (parkingLotsResponse[i]["FirstPoint"] is not None):
+        if (parkingLotsResponse[i]["FirstPoint"] is not None and parkingLotsResponse[i]["FirstPoint"] != ''):
             parkingLots.append(ParkingLot(parkingLotsResponse[i]["ParkingLotID"],
                                       parkingLotsResponse[i]["ParkingLotStatus"],
                                       getPoint(parkingLotsResponse[i]["FirstPoint"]),
