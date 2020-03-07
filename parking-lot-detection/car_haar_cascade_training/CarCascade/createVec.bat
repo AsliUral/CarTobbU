@@ -1,0 +1,1 @@
+opencv_createsamples -info test.txt -num 121 -w 64 -h 64 -vec cars.vec

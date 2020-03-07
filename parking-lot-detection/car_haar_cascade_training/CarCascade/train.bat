@@ -1,0 +1,1 @@
+opencv_traincascade -data C:\Users\BAG\Desktop\CarCascade\Test\XML -vec cars.vec -bg bg.txt -numPos 80 -numNeg 65 -numStages 15 -minHitRate 0.995 -maxFalseAlarmRate 0.5 -w 64 -h 64
