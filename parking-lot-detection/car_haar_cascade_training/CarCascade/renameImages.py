@@ -1,18 +1,24 @@
-# Renaming images according to our requirement
+
+# Pythono3 code to rename multiple
+# files in a directory or folder
 
 import os
-import cv2
-import numpy as np
-i = 2925
-path = r'C:\Users\BAG\Desktop\CarCascade\OwnCollection\non-vehicles\Right'
-for image_name in os.listdir(path):
-    old_file = os.path.join(path, image_name)
-    
-    if i < 1000:
-        new_file = os.path.join(path,'image0'+str(i)+'.png' )
-        os.rename(old_file,new_file)
-    else:
-        new_file = os.path.join(path,'image'+str(i)+'.png')
-        os.rename(old_file,new_file)
-        
-    i+=1
+def main():
+    i = 0
+
+    for filename in os.listdir("C:\\Users\\BAG\\Desktop\\CarCascade\\OwnCollection\\caryok\\non-car\\"):
+
+        print(filename)
+        dst = "images" + str(i) + ".png" #new name
+        src = 'C:\\Users\\BAG\\Desktop\\CarCascade\\OwnCollection\\caryok\\non-car\\' + filename #add src path
+        dst = 'C:\\Users\\BAG\\Desktop\\CarCascade\\OwnCollection\\caryok\\non-car\\' + dst #add dest path
+
+        # rename() function will cars
+        # rename all the files
+        os.rename(src, dst)
+        i += 1
+
+if __name__ == '__main__':
+
+    main()
+
