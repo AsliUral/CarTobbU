@@ -125,13 +125,8 @@ while True:
 
     cv2.imshow('Tobb Etu Car Park', frame)
 
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(25) & 0xFF == ord('q'):
         break
-
-    if cv2.waitKey(1) & 0xFF == ord('r'):
-        frame = frame.copy()
-
     if cv2.waitKey(1) & 0xFF == ord('o'):
         startDetection = True
 
