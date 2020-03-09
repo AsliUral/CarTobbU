@@ -5541,7 +5541,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Camera: {fileID: 534669904}
-  Rotate: 0
+  Rotate: 1
 --- !u!114 &1927323962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5555,7 +5555,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mark: {fileID: -927199367670048503, guid: ac4869f91400c9f4c9d7714da93273ba, type: 3}
-  obj: {fileID: 0}
 --- !u!64 &1927323964
 MeshCollider:
   m_ObjectHideFlags: 0

@@ -15,4 +15,8 @@ public class MainMenu : MonoBehaviour
    
         */
    }
+
+   public void GoToLogin(){
+      SceneManager.LoadScene(3);
+   }
 }

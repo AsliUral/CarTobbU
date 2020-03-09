@@ -10,8 +10,8 @@ public GameObject thisObj;
     
     public IEnumerator coroutine(){
         while (true){
-            //UnityWebRequest www = UnityWebRequest.Get("http://localhost:3000/parkinglots");
-            UnityWebRequest www = UnityWebRequest.Get("http://localhost:3000/parkinglots/P1");
+            
+            UnityWebRequest www = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/parkingLots/p2");
 
             yield return www.SendWebRequest();
             if (www.isNetworkError || www.isHttpError){
@@ -24,13 +24,22 @@ public GameObject thisObj;
                 // Show results as text
                 string str = www.downloadHandler.text;
                 Debug.Log(www.downloadHandler.text);
-            
-                int status = 1;
+                string[] statusArr;
+                string status = "";
+                string[] strSplit = str.Split(',');
+                for(var i=0; i<strSplit.Length; i++){
+                    if(strSplit[i].Contains("ParkingLotStatus")){
+                        statusArr = strSplit[i].Split(':');
+                        status = statusArr[1];
+                        Debug.Log("status:(p2) " + status);
+                    }
+                //Debug.Log(strSplit[i]);
+                }
                 //bu statusu databaseten alınca bu kismi guncelle
                 var cubeRenderer = thisObj.GetComponent<Renderer>();
-                if(status == 1){
-                    cubeRenderer.material.SetColor("_Color", Color.red);
-                                
+                if(status.Equals("\"Available\"")){
+                    Debug.Log("true");
+                    cubeRenderer.material.SetColor("_Color", Color.green);                
                 }          
             }
             
@@ -40,12 +49,3 @@ public GameObject thisObj;
 }
 
 
-
-                /*
-                var gameObject = new GameObject("newObj");
-                var meshFilter = gameObject.AddComponent<MeshFilter>();
-                gameObject.AddComponent<MeshRenderer>();
-                meshFilter.sharedMesh = objectToCreate;
-                gameObject.transform.position = transform.position;
-                gameObject.transform.rotation = transform.rotation;
-                */
