@@ -36,8 +36,8 @@ Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
               console.log("error: ", err);
               result(err, null);
             } else {
-              console.log(res2.insertId);
-              result(null, res2.insertId);
+              console.log(res.insertId);
+              result(null, res.insertId);
             }
           });
         }

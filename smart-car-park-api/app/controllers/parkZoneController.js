@@ -17,13 +17,14 @@ exports.create_a_new_parkZone = function(req, res) {
 
 exports.update_a_parkZone = function(req, res) {
   console.log(req);
-  Parkzone.updateParkZone(req.body.ParkZoneID, req.body.ParkZoneName, function(
-    err,
-    parkzone
-  ) {
-    if (err) res.send(err);
-    res.json(parkzone);
-  });
+  Parkzone.updateParkZone(
+    req.body.ParkingZoneID,
+    req.body.ParkZoneName,
+    function(err, parkzone) {
+      if (err) res.send(err);
+      res.json(parkzone);
+    }
+  );
 };
 
 /* Get All Parking Lots */

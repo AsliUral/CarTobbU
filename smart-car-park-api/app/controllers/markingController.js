@@ -7,8 +7,14 @@ exports.handle_marking = function(req, res) {
     err,
     marking
   ) {
-    if (err) res.send(err);
-    res.json(marking);
+    if (err != null && err.errno == 1062) {
+      res.status(400).send({
+        error: true,
+        message: "Duplicate entry."
+      });
+    } else {
+      res.json(marking);
+    }
   });
 };
 

@@ -3,6 +3,7 @@ var sql = require("./dbModel/db.js");
 
 //Parkzone object constructor
 var Parkzone = function(parkzone) {
+  this.ParkingZoneID = parkzone.ParkingZoneID;
   this.parkzonename = parkzone.parkzonename;
 };
 
@@ -22,7 +23,7 @@ Parkzone.createParkZone = function(parkingZone, result) {
 /* Update a Parking Zone */
 Parkzone.updateParkZone = function(ParkZoneID, ParkZoneName, result) {
   sql.query(
-    "UPDATE parkzone SET ParkZoneName = ? WHERE ParkZoneID = ?",
+    "UPDATE parkzone SET ParkZoneName = ? WHERE ParkingZoneID = ?",
     [ParkZoneName, ParkZoneID],
     function(err, res) {
       if (err) {

@@ -34,9 +34,15 @@ exports.create_a_parkinglot = function(req, res) {
       .status(400)
       .send({ error: true, message: "Please provide status of park place" });
   } else {
-    ParkingLot.createParkingLot(new_parkplace, function(err, parkinglot) {
-      if (err) res.send(err);
-      res.json(parkinglot);
+    ParkingLot.createParkingLot(new_parkinglot, function(err, parkinglot) {
+      if (err != null && err.errno == 1062) {
+        res.status(400).send({
+          error: true,
+          message: "Duplicate entry."
+        });
+      } else {
+        res.json(parkinglot);
+      }
     });
   }
 };
