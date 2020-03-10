@@ -2,7 +2,6 @@ import cv2
 import numpy
 from parking_lot_manage_mark.parking_lot import ParkingLot
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
-from parking_lot_detection.ParkingLot.parkingLotGenerator import generateParkingLots
 
 
 
@@ -39,7 +38,7 @@ def get_parking_lots(API):
 
 COLOR_WHITE = (255, 255, 255)
 cameraID = "1"
-parkZoneID = "5"
+parkZoneID = "8"
 apiKey = "ABC"
 camera = 'video/parking_lot_1.mp4'
 
@@ -116,7 +115,7 @@ while True:
 
 
     if topLeft_clicked and botRight_clicked and topRight_clicked and botLeft_clicked and not currentlyMarked:
-        parking_lot = ParkingLot(pt1, pt2, pt3, pt4, "C" +str(tempID), "Main Car Park",API,from_server=False)
+        parking_lot = ParkingLot(pt1, pt2, pt3, pt4, "K" +str(tempID), "Marking Place",API,from_server=False)
         parking_lots.append(parking_lot)
         parking_lot.draw_parking_lot(frame)
         tempID = tempID + 1
