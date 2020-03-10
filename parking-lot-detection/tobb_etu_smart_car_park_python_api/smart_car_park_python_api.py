@@ -4,7 +4,7 @@ class SmartCarParkAPI:
   def __init__(self, cameraID, parkZoneID, apiKey):
     self.cameraID = cameraID
     self.parkZoneID = parkZoneID
-    self.apiEndpoint = "http://localhost:3000"
+    self.apiEndpoint = "https://smart-car-park-api.appspot.com"
     self.apiKey = apiKey
   def getAllParkingLots(self):
     URL = self.apiEndpoint
