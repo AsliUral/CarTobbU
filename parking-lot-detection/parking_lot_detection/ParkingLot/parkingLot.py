@@ -97,8 +97,55 @@ class ParkingLot:
     mask = mask == 255
     self.mask = mask
 
-  def check(self, pos_sec, gray, centers_of_cars, API):
-    status = self.get_status(gray, centers_of_cars)
+  def process_image(self, img):
+    image = cv2.resize(img, (416, 416),
+                       interpolation=cv2.INTER_CUBIC)
+    image = np.array(image, dtype='float32')
+    image /= 255.
+    image = np.expand_dims(image, axis=0)
+
+    return image
+
+  def get_car_coordinates(self, image, boxes, scores, classes, all_classes):
+    car_coordinates = []
+    for box, score, cl in zip(boxes, scores, classes):
+      x, y, w, h = box
+      if (self.vehicleFilter(all_classes[cl]) == True):
+        top = max(0, np.floor(x + 0.5).astype(int))
+        left = max(0, np.floor(y + 0.5).astype(int))
+        right = min(image.shape[1], np.floor(x + w + 0.5).astype(int))
+        bottom = min(image.shape[0], np.floor(y + h + 0.5).astype(int))
+
+        #cv2.rectangle(image, (top, left), (right, bottom), (255, 0, 0), 1)
+        add = int((bottom + (int((bottom + left) / 2))) / 2)
+        coor_x = int((top + right) / 2)
+        coor_y = int((bottom + left) / 2) + (add - int((bottom + left) / 2))
+        """
+        cv2.circle(image, (int((top + right) / 2), int((bottom + left) / 2) + (add - int((bottom + left) / 2))), 1,
+                   (0, 0, 255), -5)
+        """
+        car_coordinates.append( (coor_x, coor_y))
+        #print('box coordinate x,y,w,h: {0}'.format(box))
+    return car_coordinates
+
+  def vehicleFilter(self, className):
+    if (
+            className == "bicycle" or className == "car" or className == "motorbike" or className == "bus" or className == "truck"):
+      return True
+    else:
+      return False
+
+  def detect_image(self, image, yolo, all_classes):
+    pimage = self.process_image(image)
+    boxes, classes, scores = yolo.predict(pimage, image.shape)
+    car_coordinates = []
+    if boxes is not None:
+      car_coordinates = self.get_car_coordinates(image, boxes, scores, classes, all_classes)
+    return car_coordinates
+
+  def check(self, pos_sec, gray, API, yolo, classes, frame):
+
+    status = self.get_status(gray)
 
     if self.sec is not None and (self.status == status):
       self.sec = None
@@ -106,11 +153,21 @@ class ParkingLot:
     if self.sec is not None and (self.status != status):
       if pos_sec - self.sec >= 1:
         if (status == "Available"):
-          API.handleLeaving(self.parkingLotID)
-          print("Handle Leaving : ", self.parkingLotID)
+          car_coordinates = self.detect_image(frame, yolo, classes)
+          yolo_status = self.get_yolo_status(gray, car_coordinates)
+          status = yolo_status
+          if (status == "Available"):
+            API.handleLeaving(self.parkingLotID)
+            print("Handle Leaving : ", self.parkingLotID)
+
         else:
-          API.handleParking(self.parkingLotID)
-          print("Handle Parking : ", self.parkingLotID)
+          car_coordinates = self.detect_image(frame, yolo, classes)
+          yolo_status = self.get_yolo_status(gray, car_coordinates)
+          status = yolo_status
+          if (status == "Occupied"):
+            API.handleParking(self.parkingLotID)
+            print("Handle Parking : ", self.parkingLotID)
+
         self.status = status
         self.sec = None
 
@@ -133,29 +190,20 @@ class ParkingLot:
                 int(moments["m01"] / moments["m00"]) + 3)
       cv2.putText(frame, self.parkingLotID, center, cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_WHITE, 1, cv2.LINE_AA)
 
-  def get_status(self, grayed, centers_of_cars):
-        coordinates = np.asarray(self.borderPoints)
+  def get_status(self, grayed):
+      rectangle = self.bound
 
-        rectangle = self.bound
+      region_of_interest = grayed[rectangle[1]:(rectangle[1] + rectangle[3]), rectangle[0]:(rectangle[0] + rectangle[2])]
+      lap = cv2.Laplacian(region_of_interest, cv2.CV_64F)
+      status = np.mean(np.abs(lap * self.mask)) < 1.4
+      status = self.motion_check(status)
+      return status
 
-        region_of_interest = grayed[rectangle[1]:(rectangle[1] + rectangle[3]), rectangle[0]:(rectangle[0] + rectangle[2])]
-        lap = cv2.Laplacian(region_of_interest, cv2.CV_64F)
+  def get_yolo_status(self, grayed, car_coordinates):
+      car_inside = self.car_inside(car_coordinates)
+      return self.yolo_check(car_inside)
 
-        coordinates[:, 0] = coordinates[:, 0] - rectangle[0]
-        coordinates[:, 1] = coordinates[:, 1] - rectangle[1]
-
-        status = np.mean(np.abs(lap * self.mask)) < 1.4
-        car_inside = self.car_inside(centers_of_cars)
-
-        status_motion = self.motion_check(status)
-        status_cascade = self.cascade_check(car_inside)
-        """
-        We can also use car cascade to detection
-        """
-
-        return status_motion
-
-  def cascade_check(self, car_inside):
+  def yolo_check(self, car_inside):
     if car_inside == True:
       return "Occupied"
     else:
