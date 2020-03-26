@@ -17,6 +17,11 @@ class ParkingLot:
     self.bottom_right = (0, 0)
     self.top_left = (0, 0)
     self.top_right = (0, 0)
+    self.max_try = 7
+    self.try_count = 0
+    self.parking_spot_line_detected = False
+    self.current_try = 0
+
     self.pre_check()
     self.set_place_points([firstPoint, secondPoint, thirdPoint, fourthPoint])
 
@@ -116,7 +121,7 @@ class ParkingLot:
         right = min(image.shape[1], np.floor(x + w + 0.5).astype(int))
         bottom = min(image.shape[0], np.floor(y + h + 0.5).astype(int))
 
-        #cv2.rectangle(image, (top, left), (right, bottom), (255, 0, 0), 1)
+        cv2.rectangle(image, (top, left), (right, bottom), (255, 0, 0), 1)
         add = int((bottom + (int((bottom + left) / 2))) / 2)
         coor_x = int((top + right) / 2)
         coor_y = int((bottom + left) / 2) + (add - int((bottom + left) / 2))
@@ -138,6 +143,7 @@ class ParkingLot:
   def detect_image(self, image, yolo, all_classes):
     pimage = self.process_image(image)
     boxes, classes, scores = yolo.predict(pimage, image.shape)
+    #print("Boxes : " , boxes)
     car_coordinates = []
     if boxes is not None:
       car_coordinates = self.get_car_coordinates(image, boxes, scores, classes, all_classes)
@@ -161,12 +167,17 @@ class ParkingLot:
             print("Handle Leaving : ", self.parkingLotID)
 
         else:
-          car_coordinates = self.detect_image(frame, yolo, classes)
-          yolo_status = self.get_yolo_status(gray, car_coordinates)
-          status = yolo_status
-          if (status == "Occupied"):
-            API.handleParking(self.parkingLotID)
-            print("Handle Parking : ", self.parkingLotID)
+          if self.parking_spot_line_detected == False :
+            car_coordinates = self.detect_image(frame, yolo, classes)
+            yolo_status = self.get_yolo_status(gray, car_coordinates)
+            status = yolo_status
+            if (status == "Occupied"):
+              API.handleParking(self.parkingLotID)
+              print("Handle Parking : ", self.parkingLotID)
+            else:
+              self.try_count = 0
+          else:
+            status = "Available"
 
         self.status = status
         self.sec = None
@@ -220,10 +231,14 @@ class ParkingLot:
       if (self.inside_polygon(centers_of_cars[i])):
         return True
 
+    self.current_try = self.current_try + 1
+    if self.current_try == self.max_try:
+      self.current_try = 0
+      self.parking_spot_line_detected = True
     return False
 
   def inside_polygon(self, center_car):
-    point = Point(center_car[0], center_car[1])
+    point = Point(center_car[0], center_car[1] + self.current_try)
     polygon = Polygon([tuple(self.bottom_left[0]), tuple(self.bottom_right[0]), tuple(self.top_right[0]), tuple(self.top_left[0])])
     return polygon.contains(point)
 
