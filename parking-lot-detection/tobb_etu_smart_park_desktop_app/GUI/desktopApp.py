@@ -7,13 +7,13 @@
 #
 # WARNING! All changes made in this file will be lost!
 import sys
-from GUI import gui
+from tobb_etu_smart_park_desktop_app.GUI import gui
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-from GUI import PyQt5_stylesheets
-from GUI.gui import ShowVideo, ImageViewer
+from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
+from tobb_etu_smart_park_desktop_app.GUI.gui import ShowVideo, ImageViewer
 
 
 class Ui_MainWindow():
@@ -278,8 +278,8 @@ class Ui_MainWindow():
         self.groupBox.setTitle(_translate("MainWindow", "ToolBox"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "Page 1"))
         self.checkableButton.setText(_translate("MainWindow", "Checkable button"))
-        self.pushButton.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_5.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton.setText(_translate("MainWindow", "Park Yeri Bilgisini Algıla"))
+        self.pushButton_5.setText(_translate("MainWindow", "Park Yeri Bilgisini Algıla"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), _translate("MainWindow", "Tab 1"))
         item = self.tableWidget.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "New Row"))
@@ -308,7 +308,7 @@ class Ui_MainWindow():
         self.treeWidget.topLevelItem(1).setText(0, _translate("MainWindow", "effefe"))
         self.treeWidget.setSortingEnabled(__sortingEnabled)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
-        self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton_2.setText(_translate("MainWindow", "Park Yeri Bilgisini Algıla"))
         self.radioButton_2.setText(_translate("MainWindow", "RadioButton"))
         self.checkBox_3.setText(_translate("MainWindow", "CheckBox"))
         self.bt_delay_popup.setText(_translate("MainWindow", "Delayed popup  "))

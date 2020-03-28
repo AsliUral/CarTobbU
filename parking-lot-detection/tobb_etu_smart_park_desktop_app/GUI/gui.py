@@ -13,7 +13,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QToolBar, QToolButton, QPushButton, QListWidget, QListWidgetItem, QVBoxLayout
 
-from GUI.parking_lot import ParkingLot
+from tobb_etu_smart_park_desktop_app.GUI.parking_lot import ParkingLot
 #from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
 
 def getPoint(point):
@@ -82,7 +82,7 @@ def slot_method():
 
 class ShowVideo(QtCore.QObject):
     # initiating the built in camera
-    camera_port = 'parking_lot_1.mp4'
+    camera_port = 'tobb_etu_main.mp4'
 
 
     camera = cv2.VideoCapture(camera_port)
