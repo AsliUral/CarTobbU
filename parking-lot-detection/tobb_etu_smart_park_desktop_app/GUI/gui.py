@@ -82,7 +82,7 @@ def slot_method():
 
 class ShowVideo(QtCore.QObject):
     # initiating the built in camera
-    camera_port = 'tobb_etu_main.mp4'
+    camera_port = 'parking_lot_1.mp4'
 
 
     camera = cv2.VideoCapture(camera_port)
