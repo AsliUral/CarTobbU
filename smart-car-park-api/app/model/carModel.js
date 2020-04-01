@@ -3,7 +3,6 @@ var sql = require("./dbModel/db.js");
 
 //Car object constructor
 var Car = function(car) {
-  this.personID = car.personID;
   this.carPlate = car.carPlate;
   this.carColor = car.carColor;
   this.carName = car.carName;
@@ -12,12 +11,14 @@ var Car = function(car) {
 };
 
 /* Create User Car */
-Car.createCar = function(new_car, apiKey, result) {
-  sql.query("Select * from user where ApiKey = ? ", apiKey, function(err, res) {
+Car.createCar = function(new_car, ApiKey, result) {
+  console.log("Debug : ", ApiKey);
+  sql.query("Select * from user where ApiKey = ? ", ApiKey, function(err, res) {
     if (err) {
     } else {
       var personID = res[0].PersonID;
       new_car.personID = personID;
+      new_car.apiKey = ApiKey;
       sql.query("INSERT INTO car set ?", new_car, function(err, res) {
         if (err) {
           console.log("error: ", err);
