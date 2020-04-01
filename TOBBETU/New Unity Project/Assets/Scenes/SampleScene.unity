@@ -1909,7 +1909,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisObj: {fileID: 401458824}
-  car: {fileID: 1699572693835628, guid: 37ec82ab8eba1384baadcaa1d88b7f72, type: 3}
+  car: {fileID: 100000, guid: 0878a909187a1784b849ebd9af8a4d1e, type: 3}
   pos: {fileID: 401458826}
   transform: {fileID: 0}
 --- !u!4 &401458826 stripped
@@ -2969,7 +2969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisObj: {fileID: 575044425}
-  car: {fileID: 1699572693835628, guid: 37ec82ab8eba1384baadcaa1d88b7f72, type: 3}
+  car: {fileID: 100000, guid: 0878a909187a1784b849ebd9af8a4d1e, type: 3}
   pos: {fileID: 0}
   transform: {fileID: 0}
 --- !u!1 &579148528
