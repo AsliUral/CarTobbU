@@ -35,7 +35,8 @@ public class addMarker : MonoBehaviour
                             Destroy(obj);
                             pos = hitInfo.collider.gameObject.transform;
                             if(pos != null){
-                                obj = Instantiate(marker,pos.position + new Vector3(0,(float)0.40,0),pos.rotation);
+                                obj = Instantiate(marker,pos.position + new Vector3(0,(float)0.60,0),pos.rotation);
+                                obj.transform.Rotate(90,0,0);
                                 control=1;
                                 
                             }
@@ -43,9 +44,9 @@ public class addMarker : MonoBehaviour
                     doubleClickStart = Time.time;  
 
                
-                }else{
+                }
                 
-                     if(click && Time.time <= (clickTime + clickDelta)) {
+                if(click && Time.time <= (clickTime + clickDelta)) {
                              control=2;
                             
                             name2=hitInfo.transform.gameObject.name;
@@ -53,16 +54,16 @@ public class addMarker : MonoBehaviour
                             Debug.Log(name1);
                             Debug.Log("ikinci");
                             Debug.Log(name2);
-                         if(name2.Equals(name1)){
+                        
                              Destroy(obj);
-                         }
+                         
                             
                             click = false;
-                        }else {
+                }else {
                             click = true;
                             clickTime = Time.time;
-                        }
-                }           
+                }
+                           
                         
                        
        
@@ -77,7 +78,6 @@ public class addMarker : MonoBehaviour
            
 
     }
-
  /*void OnDoubleClick()
  {
      Debug.Log("Double Clicked!");
@@ -94,4 +94,47 @@ public class addMarker : MonoBehaviour
 
 }
 
+/*
+    void checkMouseDoubleClick()
+ {
+     if(Input.GetMouseButtonDown(0) && GUIUtility.hotControl == 0)
+     {
+         mouseClicks++;
+         Debug.Log("Num of mouse clicks ->" + mouseClicks);
+     }
+     
+     if(mouseClicks >= 1 && mouseClicks < 3)
+     {
+         mouseTimer += Time.fixedDeltaTime;
+         
+         if(mouseClicks == 2)
+         {
+             if(mouseTimer - mouseTimerLimit  < 0)
+             {
+                 Debug.Log("Mouse Double Click");
+                 mouseTimer = 0;
+                 mouseClicks = 0;
+               
+             }
+             else
+             {
+                 Debug.Log("Timer expired");
+                 mouseClicks = 0;
+                 mouseTimer = 0;
+              
+             }
+         }
+         
+         if(mouseTimer > mouseTimerLimit)
+         {
+             Debug.Log("Timer expired");
+             mouseClicks = 0;
+             mouseTimer  = 0;
+        
+         }
+     }
+ }
+
+
+ */
 
