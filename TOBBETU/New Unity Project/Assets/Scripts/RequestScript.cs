@@ -70,22 +70,23 @@ private List<GameObject> carList;
                             t.Rotate(0.0f, -90.0f, 0.0f);
                             Color newColor=Color.clear;
                             Color carColorP=Color.clear;
-                            Debug.Log( lot.ParkingLotID +" ve "+ personCar.CurrentParkingLot+" ve "+ personCar.PersonID);
-                            if(lot.ParkingLotID.Equals("y15") && personCar.CurrentParkingLot.Equals("y15") &&  personCar.PersonID.Equals("10") ){
+                            //Debug.Log( lot.ParkingLotID +" ve "+ personCar.CurrentParkingLot+" ve "+ personCar.PersonID);
+                            /*if(lot.ParkingLotID.Equals("y15") && personCar.CurrentParkingLot.Equals("y15") &&  personCar.PersonID.Equals("10") ){
                                 
                                 //Debug.Log("IDDD "+lot.ParkingLotID);
                                // Debug.Log("NAME COLOR "+personCar.CarColor);
                                 ColorUtility.TryParseHtmlString (personCar.CarColor, out carColorP);
                                // Debug.Log("car COLOR "+carColorP);
                                 newColor=carColorP;
-                                Debug.Log("ıd y15 "+ lot.ParkingLotID+ " newColor"+ newColor+ personCar.CarColor);
+                               // Debug.Log("ıd y15 "+ lot.ParkingLotID+ " newColor"+ newColor+ personCar.CarColor);
                                 Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation);
                                 
-                            }else if(lot.ParkingLotID.Equals("y14") && personCar.CurrentParkingLot.Equals("") && personCar.PersonID.Equals("6")){
-                                Debug.Log("ıd diger "+ lot.ParkingLotID);
+                            }else if(!lot.ParkingLotID.Equals("y15") && personCar.CurrentParkingLot.Equals("") ){
+                                //Debug.Log("ıd diger "+ lot.ParkingLotID);
                                 Instantiate(create(car,Color.yellow,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation);
 
-                            }
+                            }*/
+                            Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation); 
                             newColor=Color.clear;
                             count++;
                             //Debug.Log("ahaaa "+count);
@@ -133,7 +134,7 @@ private List<GameObject> carList;
         string s="CAR"+id;
         //GameObject go = GameObject.Find(s);
        // go.GetComponent<MeshRenderer>().material.color = col;
-        Debug.Log("yeni obj "+ newCar.transform.name + " rengi  "+ col.ToString());
+      //  Debug.Log("yeni obj "+ newCar.transform.name + " rengi  "+ col.ToString());
         carList.Add(newCar);
         
         return newCar;

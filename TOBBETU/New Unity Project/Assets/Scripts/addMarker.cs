@@ -1,140 +1,195 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-public class addMarker : MonoBehaviour
-{
+using UnityEngine.Networking;
 
-    public GameObject marker;
-	public GameObject obj;
-	private Transform pos;
-    private float control;
-    public float clickDelta = 0.35f;  // Max between two click to be considered a double click
-    private bool click = false;
-    private float clickTime;
-    
+public class AddMarker : MonoBehaviour
+{
  
+    private Transform pos;
+    public GameObject marker;
+    private GameObject obj;
+    public GameObject current;
+    public float flag=0;
+    RaycastHit hitInfo;
+    //public float flag=0;
+    
+     void Start()
+    {
+        
+       
+    }
+    // Update is called once per frame
      void Update()
     {
-     
-        string name1="";
-        string name2="";
-        float doubleClickStart = 0;
-        if(Input.GetMouseButtonDown(0) ){
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitInfo;
-             if(Physics.Raycast(ray, out hitInfo)){
-                var rig = hitInfo.collider.GetComponent<Rigidbody>();
-                if (click && Time.time > (clickTime + clickDelta)){         
-                    click = false;
-                   
-                       if(hitInfo.transform.gameObject.tag=="Lot"){
-                            name1=hitInfo.transform.gameObject.name;
-                           
-                            Destroy(obj);
-                            pos = hitInfo.collider.gameObject.transform;
-                            if(pos != null){
-                                obj = Instantiate(marker,pos.position + new Vector3(0,(float)0.60,0),pos.rotation);
-                                obj.transform.Rotate(90,0,0);
-                                control=1;
-                                
-                            }
-                       }
-                    doubleClickStart = Time.time;  
-
-               
-                }
-                
-                if(click && Time.time <= (clickTime + clickDelta)) {
-                             control=2;
-                            
-                            name2=hitInfo.transform.gameObject.name;
-                            Debug.Log("secilen");
-                            Debug.Log(name1);
-                            Debug.Log("ikinci");
-                            Debug.Log(name2);
-                        
-                             Destroy(obj);
-                         
-                            
-                            click = false;
-                }else {
-                            click = true;
-                            clickTime = Time.time;
-                }
-                           
-                        
-                       
-       
-                   
-            
-        } 
-                
-             
-
-        }
-       
            
+        /*UnityWebRequest www = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/marking");
+        yield return www.SendWebRequest();
+        if (www.isNetworkError || www.isHttpError){
+                Debug.Log(www.error);
+                Debug.Log("HAATAAAAAAA");
+        }else{
+                string str = www.downloadHandler.text;
+                string jsonString = fixJson(str);
+                MarkingLots[] markingLotsArray = JsonHelper.FromJson<MarkingLots>(jsonString);
+                foreach(MarkingLots marking in markingLotsArray){
+
+                    
+                    if(Login.apiKey.Equals("\""+marking.ApiKey+"\"")){
+        
+                        GameObject m=GameObject.Find(marking.ParkingLotID);
+                        if(m!=null){
+                            GameObject o= Instantiate(marker,m.transform.position + new Vector3(0,(float)0.60,0),m.transform.rotation);
+                            o.transform.Rotate(90,0,0);
+                            o.transform.name="MARK"+marking.ParkingLotID;
+                            current=o;
+                            flag=1;
+                            break;
+                        }
+                       
+                    }
+                }*/
+        
+
+        if(Input.GetMouseButtonDown(0)){
+              Debug.Log("BURAYA GELDİM");
+            //Destroy(obj);
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            
+            if(Physics.Raycast(ray, out hitInfo)){
+                
+                var rig = hitInfo.collider.GetComponent<Rigidbody>();
+                pos = hitInfo.collider.gameObject.transform;
+               
+                if(pos != null && hitInfo.transform.gameObject.tag.Equals("Lot")){
+                 
+                    if(show.flag==0 && GameObject.Find("CAR"+hitInfo.transform.gameObject.name)){
+
+                        //obj = Instantiate(marker,pos.position + new Vector3(0,(float)0.60,0),pos.rotation);
+                        //obj.transform.Rotate(90,0,0);
+                        //obj.transform.name="MARK"+ hitInfo.transform.gameObject.name;
+                        //current=obj;
+                        StartCoroutine(coroutine1());
+                        show.flag=1;
+                        current=GameObject.Find(show.markObj);   
+                            
+                    }else{
+                        current=show.sendObject;
+                        if(("MARK"+hitInfo.transform.gameObject.name).Equals(show.markObj)){
+                            /*MarkingLots mObj = new MarkingLots();
+                            mObj.ParkingLotID=hitInfo.transform.gameObject.name;
+                             
+                            Debug.Log("BASILAN "+hitInfo.transform.gameObject.name);
+                            Debug.Log("current "+current.transform.name);
+                            string json = JsonUtility.ToJson(mObj);
+                            Debug.Log(json);
+                            string url="https://smart-car-park-api.appspot.com/marking/deleteMarking/"+Login.apiKey;
+                            var uwr = new UnityWebRequest(url, "POST");
+                            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
+                            uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
+                            uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                            uwr.SetRequestHeader("Content-Type", "application/json");
+
+                            yield return uwr.SendWebRequest();
+
+                            if (uwr.isNetworkError){
+                                Debug.Log("giderken hata oldu "+uwr.error);
+                            }
+                            else{
+                                Debug.Log(uwr.downloadHandler.text);
+                               
+                            }   */
+                            StartCoroutine(coroutine2());
+
+                            if(current!=null){
+                                Debug.Log("sillaan");
+                                current.transform.position=new Vector3(0,0,-100);
+                                Destroy(GameObject.Find("MARK"+hitInfo.transform.gameObject.name));
+                            }
+                            
+                            current=null;
+                            show.flag=0;
+                        }
+                    }
+                    
+                
+              }
+            }
+            
+        }
+
+      
+     } 
+    
+     public string fixJson(string value)
+    {
+
+    value = "{\"Items\":" + value + "}";
+
+    return value;
 
     }
- /*void OnDoubleClick()
- {
-     Debug.Log("Double Clicked!");
-     Destroy(obj);
- }
- void check(){
-     if ((Time.time - doubleClickStart) < 0.3f){
-        this.OnDoubleClick();
-        doubleClickStart = -1;
-     }else{
-        doubleClickStart = Time.time;
-        }
- }*/
 
+    IEnumerator coroutine1(){
+                        //MarkingLots mObj2 = new MarkingLots();
+                         deleteMark mObj2 = new deleteMark();
+                        mObj2.ParkingLotID=hitInfo.transform.gameObject.name;
+                      
+                       // Debug.Log("BAKKK"+hitInfo.transform.gameObject.name+" vee"+mObj2.ParkingLotID);
+                        string json2 = JsonUtility.ToJson(mObj2);
+                        Debug.Log("abuu"+json2);
+                        
+                        string url2="https://smart-car-park-api.appspot.com/marking/handleMarking/"+Login.apiKey.Replace("\"","");
+                        Debug.Log(Login.apiKey);
+                        Debug.Log(url2);
+                        var uwr2 = new UnityWebRequest(url2, "POST");
+                        byte[] jsonToSend2 = new System.Text.UTF8Encoding().GetBytes(json2);
+                        uwr2.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend2);
+                        uwr2.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                        uwr2.SetRequestHeader("Content-Type", "application/json");
+
+                        yield return uwr2.SendWebRequest();
+
+                        if (uwr2.isNetworkError){
+                                Debug.Log("giderken hata oldu "+uwr2.error);
+                        }
+                        else{
+                                Debug.Log(uwr2.downloadHandler.text);
+                               
+                        }
+
+                         yield return new WaitForSeconds(5);
+    }
+    IEnumerator coroutine2(){
+                           deleteMark mObj = new deleteMark();
+                            mObj.ParkingLotID=hitInfo.transform.gameObject.name;
+                            //string delete=hitInfo.transform.gameObject.name;
+                            Debug.Log("BASILAN "+hitInfo.transform.gameObject.name);
+                           // Debug.Log("current "+current.transform.name);
+                            string json = JsonUtility.ToJson(mObj);
+                            Debug.Log("jsonhali"+json);
+                            string url="https://smart-car-park-api.appspot.com/marking/deleteMarking/"+Login.apiKey.Replace("\"","");
+                            var uwr = new UnityWebRequest(url, "DELETE");
+                            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(json);
+                            uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
+                            uwr.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                            uwr.SetRequestHeader("Content-Type", "application/json");
+
+                            yield return uwr.SendWebRequest();
+
+                            if (uwr.isNetworkError){
+                                Debug.Log("giderken hata oldu "+uwr.error);
+                            }
+                            else{
+                                Debug.Log("olduu"+uwr.downloadHandler.text);
+                               
+                            } 
+                             yield return new WaitForSeconds(5);
+    }
 }
-
-/*
-    void checkMouseDoubleClick()
- {
-     if(Input.GetMouseButtonDown(0) && GUIUtility.hotControl == 0)
-     {
-         mouseClicks++;
-         Debug.Log("Num of mouse clicks ->" + mouseClicks);
-     }
-     
-     if(mouseClicks >= 1 && mouseClicks < 3)
-     {
-         mouseTimer += Time.fixedDeltaTime;
-         
-         if(mouseClicks == 2)
-         {
-             if(mouseTimer - mouseTimerLimit  < 0)
-             {
-                 Debug.Log("Mouse Double Click");
-                 mouseTimer = 0;
-                 mouseClicks = 0;
-               
-             }
-             else
-             {
-                 Debug.Log("Timer expired");
-                 mouseClicks = 0;
-                 mouseTimer = 0;
-              
-             }
-         }
-         
-         if(mouseTimer > mouseTimerLimit)
-         {
-             Debug.Log("Timer expired");
-             mouseClicks = 0;
-             mouseTimer  = 0;
-        
-         }
-     }
- }
-
-
- */
-
