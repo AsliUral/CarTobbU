@@ -15,7 +15,8 @@ public class Login : MonoBehaviour
     public InputField nameField;
     public InputField passwordField;
     public Button submitButton;
-
+    //public String apiKey{get; private set;}
+    public static string apiKey;
     public void CallLogin(){
         StartCoroutine(LoginUser());
     }
@@ -39,6 +40,11 @@ public class Login : MonoBehaviour
         }
         else{
             Debug.Log(uwr.downloadHandler.text);
+            string str = uwr.downloadHandler.text;
+            string[] strSplit = str.Split(',');
+            string[] statusArr = strSplit[0].Split(':');
+            apiKey = statusArr[1];
+            Debug.Log("apikeeeey "+apiKey);
             UnityEngine.SceneManagement.SceneManager.LoadScene(3);
         }
  
@@ -50,5 +56,8 @@ public class Login : MonoBehaviour
         submitButton.interactable = (nameField.text.Length>=8 && passwordField.text.Length>=8);
     }
 
-    
+
+    public string getApiKey(){
+        return apiKey;
+    }
 }

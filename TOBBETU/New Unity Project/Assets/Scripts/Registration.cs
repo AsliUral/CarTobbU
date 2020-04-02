@@ -23,6 +23,7 @@ public class Registration : MonoBehaviour
     public InputField studentIDField;
     public Button submitButton;
 
+    
 
     //using coroutine; while we are waiting for server
     //game can work in the mean time.

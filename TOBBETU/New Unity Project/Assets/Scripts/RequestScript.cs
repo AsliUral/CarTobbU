@@ -8,10 +8,14 @@ public Transform pos;
 public Transform transform;
 
     public void Start(){
+        //mesela bu request scriptinde loginden gelen user ın apikeyini aldık
+        Debug.Log("LOGIN scriptinden apikey geliyo:"+Login.apiKey);
         StartCoroutine(coroutine());
     }
     
     public IEnumerator coroutine(){
+    
+        
         while (true){
             
             UnityWebRequest www = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/parkingLots");
@@ -112,6 +116,8 @@ public Transform transform;
     value = "{\"Items\":" + value + "}";
     return value;
 }
+
+
 
 }
 
