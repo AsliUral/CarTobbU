@@ -8,8 +8,7 @@ public Transform pos;
 public Transform transform;
 
     public void Start(){
-        //mesela bu request scriptinde loginden gelen user ın apikeyini aldık
-        Debug.Log("LOGIN scriptinden apikey geliyo:"+Login.apiKey);
+
         StartCoroutine(coroutine());
     }
     

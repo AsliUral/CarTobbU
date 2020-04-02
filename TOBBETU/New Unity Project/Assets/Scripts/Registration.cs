@@ -80,5 +80,9 @@ public class Registration : MonoBehaviour
         //submitButton.interactable = buraya serverda bu isim var mi yok mu KONTROLU
     }
 
+    public void backToMenuScene(){
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    }
+
   
 }

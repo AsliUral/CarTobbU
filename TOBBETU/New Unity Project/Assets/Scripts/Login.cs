@@ -60,4 +60,8 @@ public class Login : MonoBehaviour
     public string getApiKey(){
         return apiKey;
     }
+
+    public void backToMenuScene(){
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    }
 }
