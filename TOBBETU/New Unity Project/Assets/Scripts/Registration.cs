@@ -68,7 +68,7 @@ public class Registration : MonoBehaviour
         }
         else{
             Debug.Log(uwr.downloadHandler.text);
-            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(2);
         }
  
     

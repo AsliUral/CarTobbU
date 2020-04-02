@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Networking;
 public class RequestScript : MonoBehaviour{
-
+ParkingLots[] parkingLotsArray;
+Cars[] carsArray;
 public GameObject car;
 private List<GameObject> carList;
 
@@ -40,8 +42,8 @@ private List<GameObject> carList;
                 string str2= www2.downloadHandler.text;
                 string jsonString = fixJson(str);
                 string jsonString2 = fixJson(str2);
-                ParkingLots[] parkingLotsArray = JsonHelper.FromJson<ParkingLots>(jsonString);
-                Cars[] carsArray = JsonHelper.FromJson<Cars>(jsonString2);
+                parkingLotsArray = JsonHelper.FromJson<ParkingLots>(jsonString);
+                carsArray = JsonHelper.FromJson<Cars>(jsonString2);
                 float count=0;
                 foreach ( ParkingLots lot in parkingLotsArray){
                     thisObj=GameObject.Find(lot.ParkingLotID);
@@ -64,13 +66,22 @@ private List<GameObject> carList;
                         cubeRenderer.material.SetColor("_Color", Color.red);
                     
                         
-                        
+                      
                         foreach(Cars personCar in carsArray){
                             Transform t=Instantiate(pos);
                             t.Rotate(0.0f, -90.0f, 0.0f);
                             Color newColor=Color.clear;
                             Color carColorP=Color.clear;
-                            //Debug.Log( lot.ParkingLotID +" ve "+ personCar.CurrentParkingLot+" ve "+ personCar.PersonID);
+                           
+                            Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation); 
+                            newColor=Color.clear;
+                            count++;
+                          
+                             
+                                
+                        }
+    
+                             //Debug.Log( lot.ParkingLotID +" ve "+ personCar.CurrentParkingLot+" ve "+ personCar.PersonID);
                             /*if(lot.ParkingLotID.Equals("y15") && personCar.CurrentParkingLot.Equals("y15") &&  personCar.PersonID.Equals("10") ){
                                 
                                 //Debug.Log("IDDD "+lot.ParkingLotID);
@@ -86,15 +97,6 @@ private List<GameObject> carList;
                                 Instantiate(create(car,Color.yellow,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation);
 
                             }*/
-                            Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation); 
-                            newColor=Color.clear;
-                            count++;
-                            //Debug.Log("ahaaa "+count);
-                             
-                                
-                        }
-    
-                            
                            
                        
                     
@@ -108,7 +110,8 @@ private List<GameObject> carList;
                 
         
             }
-            
+         //   Array.Clear(parkingLotsArray,0,parkingLotsArray.Length);
+          //  Array.Clear(carsArray,0,carsArray.Length);
             yield return new WaitForSeconds(5);
         }
     
