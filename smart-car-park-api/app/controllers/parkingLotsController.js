@@ -36,9 +36,19 @@ exports.create_a_parkinglot = function(req, res) {
   } else {
     ParkingLot.createParkingLot(new_parkinglot, function(err, parkinglot) {
       if (err != null && err.errno == 1062) {
+        console.log("Duplicate entry", new_parkinglot);
+
+        ParkingLot.updateById(
+          new_parkinglot.ParkingLotID,
+          new_parkinglot,
+          function(err, parkinglot) {
+            //if (err) res.send(err);
+            //res.json(parkinglot);
+          }
+        );
         res.status(400).send({
           error: true,
-          message: "Duplicate entry."
+          message: "Parking lot updated."
         });
       } else {
         res.json(parkinglot);
@@ -49,14 +59,15 @@ exports.create_a_parkinglot = function(req, res) {
 
 /* Update A Parking Lot */
 exports.update_a_parkinglot = function(req, res) {
-  ParkingLot.updateById(
-    req.params.parkingLotID,
-    new ParkingLot(req.body),
-    function(err, parkinglot) {
-      if (err) res.send(err);
-      res.json(parkinglot);
-    }
-  );
+  var new_parkinglot = new ParkingLot(req.body);
+
+  ParkingLot.updateById(req.params.parkingLotID, new_parkinglot, function(
+    err,
+    parkinglot
+  ) {
+    if (err) res.send(err);
+    res.json(parkinglot);
+  });
 };
 
 /* Delete A Parking Lot */
@@ -80,6 +91,28 @@ exports.get_all_parking_lots = function(req, res) {
 /* Get Parking Lot by Parking Lot ID */
 exports.get_parking_lot_by_id = function(req, res) {
   ParkingLot.getParkingLotById(req.params.parkingLotID, function(
+    err,
+    parkinglot
+  ) {
+    if (err) res.send(err);
+    res.json(parkinglot);
+  });
+};
+
+/* Update Parking Lot by Parking Lot ID */
+exports.update_parking_lot_by_id = function(req, res) {
+  ParkingLot.updateParkingLotById(req.params.parkingLotID, function(
+    err,
+    parkinglot
+  ) {
+    if (err) res.send(err);
+    res.json(parkinglot);
+  });
+};
+
+/* Delete Parking Lot by Parking Lot ID */
+exports.delete_parking_lot_by_id = function(req, res) {
+  ParkingLot.deleteParkingLotById(req.params.parkingLotID, function(
     err,
     parkinglot
   ) {
