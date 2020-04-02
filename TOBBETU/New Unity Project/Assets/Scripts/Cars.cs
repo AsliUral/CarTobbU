@@ -1,5 +1,5 @@
 ﻿[System.Serializable]
-public class MarkingLots
+public class Cars
 {
     public string PersonID; // degisecek API KEY
     public string CarPlate;

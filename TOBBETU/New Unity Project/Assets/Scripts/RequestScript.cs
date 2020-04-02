@@ -1,27 +1,30 @@
 ﻿using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Networking;
 public class RequestScript : MonoBehaviour{
-public GameObject thisObj;
+
 public GameObject car;
-public Transform pos;
-public Transform transform;
+private List<GameObject> carList;
 
     public void Start(){
-
+       
         StartCoroutine(coroutine());
     }
     
     public IEnumerator coroutine(){
-    
-        
+        carList=new List<GameObject>();
+        GameObject thisObj;
+        Transform pos;
         while (true){
-            
+          
             UnityWebRequest www = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/parkingLots");
-            UnityWebRequest www2 = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/marking");
+            UnityWebRequest www2 = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/cars");
 
             yield return www.SendWebRequest();
             yield return www2.SendWebRequest();
+            
             if (www.isNetworkError || www.isHttpError){
                 Debug.Log(www.error);
                 Debug.Log("HAATAAAAAAA");
@@ -29,95 +32,113 @@ public Transform transform;
                 Debug.Log(www.error);
                 Debug.Log("HAATAAAAAAA");
             }else{
-              
+               
                 // Show results as text
-                string nameObj=thisObj.gameObject.name;
-                var cubeRenderer = thisObj.GetComponent<Renderer>();
+               
                 
                 string str = www.downloadHandler.text;
                 string str2= www2.downloadHandler.text;
                 string jsonString = fixJson(str);
                 string jsonString2 = fixJson(str2);
                 ParkingLots[] parkingLotsArray = JsonHelper.FromJson<ParkingLots>(jsonString);
-                MarkingLots[] markingLotsArray = JsonHelper.FromJson<MarkingLots>(jsonString2);
+                Cars[] carsArray = JsonHelper.FromJson<Cars>(jsonString2);
+                float count=0;
                 foreach ( ParkingLots lot in parkingLotsArray){
-                   // Debug.Log(lot.ParkingLotID+" ve "+lot.ParkingLotStatus+ " veee "+ nameObj);
-                    if((lot.ParkingLotStatus+"").Equals("Available") && (nameObj).Equals(lot.ParkingLotID+"") ){
+                    thisObj=GameObject.Find(lot.ParkingLotID);
+                
+                  if(thisObj!=null){
+                    pos=thisObj.transform;
+                    string nameObj=thisObj.gameObject.name;
+                    var cubeRenderer = thisObj.GetComponent<Renderer>();
+
+                    if((lot.ParkingLotStatus+"").Equals("Available")){
                         cubeRenderer.material.SetColor("_Color", Color.green);
-                        break;
-                    }else if(lot.ParkingLotStatus.Equals("Occupied") && (nameObj).Equals(lot.ParkingLotID) ){
-                        cubeRenderer.material.SetColor("_Color", Color.red);
+                            string cn="CAR"+lot.ParkingLotID+"(Clone)";
+                            GameObject ex=GameObject.Find(cn);
+                            if(ex!=null){
+                               Destroy(ex);
+
+                            }
                         
-                           // string nameColor=marking.CarColor;
-                           // Color carColor = Color.clear; 
-                           // ColorUtility.TryParseHtmlString (nameColor, out carColor);
-                         //  Material m_Material;
-                           //m_Material = GetComponent<Renderer>().material;
-                            //var cubeRenderer2 = car.GetComponent<Renderer>();
-                           // cubeRenderer2.material.SetColor("_Color", Color.red);
-                            //m_Material.Color=Color.red;
-                         
-                            Instantiate(car,pos.position + new Vector3(0,(float)0,(float)-0.3),pos.rotation);
-                            //var cubeRenderer2 = car.GetComponent<Renderer>();
-                            //cubeRenderer2.material.SetColor("_Color", Color.green);
+                    }else if(lot.ParkingLotStatus.Equals("Occupied") ){
+                        cubeRenderer.material.SetColor("_Color", Color.red);
+                    
+                        
+                        
+                        foreach(Cars personCar in carsArray){
+                            Transform t=Instantiate(pos);
+                            t.Rotate(0.0f, -90.0f, 0.0f);
+                            Color newColor=Color.clear;
+                            Color carColorP=Color.clear;
+                            Debug.Log( lot.ParkingLotID +" ve "+ personCar.CurrentParkingLot+" ve "+ personCar.PersonID);
+                            if(lot.ParkingLotID.Equals("y15") && personCar.CurrentParkingLot.Equals("y15") &&  personCar.PersonID.Equals("10") ){
+                                
+                                //Debug.Log("IDDD "+lot.ParkingLotID);
+                               // Debug.Log("NAME COLOR "+personCar.CarColor);
+                                ColorUtility.TryParseHtmlString (personCar.CarColor, out carColorP);
+                               // Debug.Log("car COLOR "+carColorP);
+                                newColor=carColorP;
+                                Debug.Log("ıd y15 "+ lot.ParkingLotID+ " newColor"+ newColor+ personCar.CarColor);
+                                Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation);
+                                
+                            }else if(lot.ParkingLotID.Equals("y14") && personCar.CurrentParkingLot.Equals("") && personCar.PersonID.Equals("6")){
+                                Debug.Log("ıd diger "+ lot.ParkingLotID);
+                                Instantiate(create(car,Color.yellow,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation);
+
+                            }
+                            newColor=Color.clear;
+                            count++;
+                            //Debug.Log("ahaaa "+count);
+                             
+                                
+                        }
+    
                             
                            
                        
-                        break;
+                    
                     }
+                    
+                }
 
                 }
               
                      
                 
-              /*  Debug.Log(www.downloadHandler.text);
-                string[] statusArr;
-                string status = "";
-                string id = "";
-                string[] strSplit = str.Split(',');
-                for(var i=0; i<strSplit.Length; i++){
-                    
-                   
-                     if(strSplit[i].Contains("ParkingLotID")){
-                        statusArr = strSplit[i].Split(':');
-                        id = statusArr[1];
-                        Debug.Log(" ID===> " + id+ " ve status "+ status);
-                    }
-                    if(strSplit[i].Contains("ParkingLotStatus")){
-                        statusArr = strSplit[i].Split(':');
-                        status = statusArr[1];
-                    }
-                    if(status.Equals("\"Available\"") && (nameObj).Equals(id)){
-                            Debug.Log("true");
-                            cubeRenderer.material.SetColor("_Color", Color.green);                
-                    }else if(status.Equals("\"Occupied\"") && (nameObj).Equals(id)){
-                            Debug.Log("DOLUUU"+ id + " ve obje " + nameObj);
-                            cubeRenderer.material.SetColor("_Color", Color.red);
-                    } 
-                   
-                   
-                }*/
-                //bu statusu databaseten alınca bu kismi guncelle
-                /*var cubeRenderer = thisObj.GetComponent<Renderer>();
-                Debug.Log("helllo"+thisObj.gameObject.name +" ve "+ id);
-                if(status.Equals("\"Available\"") && (thisObj.gameObject.name).Equals(id)){
-                    Debug.Log("true");
-                    cubeRenderer.material.SetColor("_Color", Color.green);                
-                }    */      
+        
             }
             
             yield return new WaitForSeconds(5);
         }
-    }
+    
 
-    public string fixJson(string value)
+    string fixJson(string value)
 {
     value = "{\"Items\":" + value + "}";
     return value;
 }
-
-
-
+    GameObject create(GameObject origin,Color col,string id){
+       
+       //car.GetComponent<Renderer>().sharedMaterial.SetColor("_Color",color);
+        GameObject newCar = Instantiate(origin);
+       //newCar.gameObject.GetComponent<Renderer>().material = Instantiate(origin.gameObject.GetComponent<Renderer>().material);
+        //newCar.GetComponent<Renderer>().material.SetColor("_Color",color);
+       MaterialPropertyBlock props = new MaterialPropertyBlock();
+       props.AddColor("_Color", col);
+       newCar.GetComponent<Renderer>().SetPropertyBlock(props);
+       newCar.GetComponent<Renderer>().material.SetColor("_Color",col);
+        //newCar.SetColor(col);
+        string n=id;
+        newCar.transform.name ="CAR"+id;
+        string s="CAR"+id;
+        //GameObject go = GameObject.Find(s);
+       // go.GetComponent<MeshRenderer>().material.color = col;
+        Debug.Log("yeni obj "+ newCar.transform.name + " rengi  "+ col.ToString());
+        carList.Add(newCar);
+        
+        return newCar;
+    }
+    }
 }
 
 
