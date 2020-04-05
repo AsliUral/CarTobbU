@@ -58,7 +58,7 @@ public class AddMarker : MonoBehaviour
         
 
         if(Input.GetMouseButtonDown(0)){
-              Debug.Log("BURAYA GELDİM");
+       
             //Destroy(obj);
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             
@@ -108,7 +108,7 @@ public class AddMarker : MonoBehaviour
                             StartCoroutine(coroutine2());
 
                             if(current!=null){
-                                Debug.Log("sillaan");
+                              
                                 current.transform.position=new Vector3(0,0,-100);
                                 Destroy(GameObject.Find("MARK"+hitInfo.transform.gameObject.name));
                             }
@@ -137,14 +137,14 @@ public class AddMarker : MonoBehaviour
     }
 
     IEnumerator coroutine1(){
+                        
+                        
                         //MarkingLots mObj2 = new MarkingLots();
-                         deleteMark mObj2 = new deleteMark();
+                        deleteMark mObj2 = new deleteMark();
                         mObj2.ParkingLotID=hitInfo.transform.gameObject.name;
                       
                        // Debug.Log("BAKKK"+hitInfo.transform.gameObject.name+" vee"+mObj2.ParkingLotID);
                         string json2 = JsonUtility.ToJson(mObj2);
-                        Debug.Log("abuu"+json2);
-                        
                         string url2="https://smart-car-park-api.appspot.com/marking/handleMarking/"+Login.apiKey.Replace("\"","");
                         Debug.Log(Login.apiKey);
                         Debug.Log(url2);
@@ -165,6 +165,7 @@ public class AddMarker : MonoBehaviour
                         }
 
                          yield return new WaitForSeconds(5);
+                           
     }
     IEnumerator coroutine2(){
                            deleteMark mObj = new deleteMark();
@@ -187,7 +188,7 @@ public class AddMarker : MonoBehaviour
                                 Debug.Log("giderken hata oldu "+uwr.error);
                             }
                             else{
-                                Debug.Log("olduu"+uwr.downloadHandler.text);
+                                Debug.Log(uwr.downloadHandler.text);
                                
                             } 
                              yield return new WaitForSeconds(5);

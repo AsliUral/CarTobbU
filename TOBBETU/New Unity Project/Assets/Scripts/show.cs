@@ -35,11 +35,12 @@ public class show : MonoBehaviour
                 MarkingLots[] markingLotsArray = JsonHelper.FromJson<MarkingLots>(jsonString);
 
                 foreach(MarkingLots marking in markingLotsArray){
-
+                  if(Login.apiKey!=null){
                     if(Login.apiKey.Equals("\""+marking.ApiKey+"\"")){
                         
                         GameObject m=GameObject.Find(marking.ParkingLotID);
                         if(m!=null){
+                          if(GameObject.Find("MARK"+marking.ParkingLotID)==null){
                             flag=1;
                             obj= Instantiate(marker,m.transform.position + new Vector3(0,(float)0.60,0),m.transform.rotation);
                             obj.transform.Rotate(90,0,0);
@@ -47,6 +48,8 @@ public class show : MonoBehaviour
                             id=marking.ParkingLotID;
                             markObj=obj.transform.name;
                             sendObject=obj;
+                          }  
+                            
                            
                         }
                         if(flag==0){
@@ -55,7 +58,7 @@ public class show : MonoBehaviour
                         }
                     }
                 }
-                
+              }
             }
             yield return new WaitForSeconds(5);
         }

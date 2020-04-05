@@ -68,15 +68,20 @@ private List<GameObject> carList;
                         
                       
                         foreach(Cars personCar in carsArray){
-                            Transform t=Instantiate(pos);
-                            t.Rotate(0.0f, -90.0f, 0.0f);
+
+                          if(GameObject.Find("CAR"+lot.ParkingLotID)==null){
+                            //Transform t=Instantiate(pos);
+                            //t.Rotate(0.0f, -90.0f, 0.0f);
                             Color newColor=Color.clear;
                             Color carColorP=Color.clear;
-                           
-                            Instantiate(create(car,Color.green,lot.ParkingLotID),pos.position + new Vector3(0,(float)0.1,0),t.rotation); 
+                            GameObject newCar = Instantiate(car,pos.position + new Vector3(0,(float)0.1,0),pos.rotation);
+                            newCar.transform.Rotate(0.0f, -90.0f, 0.0f);
+                            create(newCar,Color.green,lot.ParkingLotID); 
                             newColor=Color.clear;
                             count++;
                           
+                          }  
+                            
                              
                                 
                         }
@@ -121,10 +126,10 @@ private List<GameObject> carList;
     value = "{\"Items\":" + value + "}";
     return value;
 }
-    GameObject create(GameObject origin,Color col,string id){
+    GameObject create(GameObject newCar,Color col,string id){
        
        //car.GetComponent<Renderer>().sharedMaterial.SetColor("_Color",color);
-        GameObject newCar = Instantiate(origin);
+        
        //newCar.gameObject.GetComponent<Renderer>().material = Instantiate(origin.gameObject.GetComponent<Renderer>().material);
         //newCar.GetComponent<Renderer>().material.SetColor("_Color",color);
        MaterialPropertyBlock props = new MaterialPropertyBlock();
