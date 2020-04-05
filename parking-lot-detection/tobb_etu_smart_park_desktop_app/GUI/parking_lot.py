@@ -10,34 +10,67 @@ class ParkingLot:
     self.parkingLotID = parkingLotID
     self.parkingZone = parkingZone
     self.API = API
+    self.updatedParkingLotID = parkingLotID
     self.from_server = from_server
-    first = "[" + str(pt1[0]) + "," + str(pt1[1]) + "]"
-    second = "[" + str(pt2[0]) + "," + str(pt2[1]) + "]"
-    third = "[" + str(pt3[0]) + "," + str(pt3[1]) + "]"
-    fourth = "[" + str(pt4[0]) + "," + str(pt4[1]) + "]"
-    if (from_server == False):
-        self.API.createParkingLot("Available", self.parkingLotID, parkingZone, first, second, third, fourth)
+    self.highlighted = False
+    self.deleted = False
 
+
+  def getParkingLotID(self):
+    return self.parkingLotID
+
+  def highlight(self):
+      self.highlighted = True
+
+  def releaseHighlight(self):
+      self.highlighted = False
+
+  def up(self):
+      self.highlighted = False
+
+  def down(self):
+      self.highlighted = False
+
+  def right(self):
+      self.highlighted = False
+
+  def left(self):
+      self.highlighted = False
 
   def draw_parking_lot(self, frame):
-    cv2.polylines(frame, [self.points], True, (51, 255, 255), 2)
+    HIGHLIGHTED = 204, 255, 0
+    YELLOW = (51, 255, 255)
+    color = ""
+    if (self.highlighted == True):
+        color = HIGHLIGHTED
+    else:
+        color = YELLOW
+
+    cv2.polylines(frame, [self.points], True, color, 2)
 
 
   def draw_contours(self, frame):
-      COLOR_YELLOW = (51, 255, 255)
+      HIGHLIGHTED = 204, 255, 0
+      YELLOW = (51, 255, 255)
+      color = ""
+      if (self.highlighted == True):
+          color = HIGHLIGHTED
+      else:
+          color = YELLOW
+
       cv2.drawContours(frame,
                        [self.points],
                        contourIdx=-1,
-                       color=COLOR_YELLOW,
+                       color=color,
                        thickness=2,
                        lineType=cv2.LINE_8)
 
   def draw_parking_lot_id(self, frame):
-      COLOR_WHITE = (255, 255, 255)
+      COLOR_WHITE = ( 82, 15, 186)
       moments = cv2.moments(self.points)
       center = (int(moments["m10"] / moments["m00"]) - 3,
                 int(moments["m01"] / moments["m00"]) + 3)
-      cv2.putText(frame, self.parkingLotID, center, cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_WHITE, 1, cv2.LINE_AA)
+      cv2.putText(frame, self.parkingLotID, center, cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_WHITE, 2, cv2.LINE_AA)
 
 
 

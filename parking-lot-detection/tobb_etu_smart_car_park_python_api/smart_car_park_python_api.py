@@ -11,46 +11,55 @@ class SmartCarParkAPI:
     response = requests.get(url = URL + "/parkingLots")
     data = response.json()
     return data
+
   def getAllOccupiedParkingLots(self):
     URL = self.apiEndpoint
     response = requests.get(url = URL + "/occupiedParkingLots")
     data = response.json()
     return data
+
   def getAllAvailableParkingLots(self):
     URL = self.apiEndpoint
     response = requests.get(url = URL + "/availableParkingLots")
     data = response.json()
     return data
+
   def getAllOutOfServiceParkingLots(self):
     URL = self.apiEndpoint
     response = requests.get(url = URL + "/outOfServiceParkingLots")
     data = response.json()
     return data
+
   def getParkingLotByID(self, parkingLotID):
     URL = self.apiEndpoint
     response = requests.get(url = URL + "/parkingLots" + "/" + parkingLotID)
     data = response.json()
     return data
+
   def getAllParkZones(self):
       URL = self.apiEndpoint
       response = requests.get(url=URL + "/parkZone")
       data = response.json()
       return data
+
   def getAllParkingLotsOFParkZone(self):
       URL = self.apiEndpoint
       response = requests.get(url=URL + "/parkZone" + "/" + self.parkZoneID + "/parkingLots")
       data = response.json()
       return data
+
   def getAvailableParkingLotsOFParkZone(self, parkZoneID):
       URL = self.apiEndpoint
       response = requests.get(url=URL + "/parkZone" + "/" + parkZoneID + "/availableParkingLots")
       data = response.json()
       return data
+
   def getOccupiedParkingLotsOFParkZone(self, parkZoneID):
       URL = self.apiEndpoint
       response = requests.get(url=URL + "/parkZone" + "/" + parkZoneID + "/occupiedParkingLots")
       data = response.json()
       return data
+
   def createParkingLot(self, parkingLotStatus,parkingLotID, parkZoneName, firstPoint, secondPoint,thirdPoint,fourthPoint):
       URL = self.apiEndpoint
       parkingLot_data = {
@@ -63,6 +72,25 @@ class SmartCarParkAPI:
         "fourthPoint": fourthPoint
       }
       data = requests.post(url=URL + "/parkingLots", data=parkingLot_data)
+      return data
+
+  def updateParkingLotByID(self, targetParkingLotID, parkingLotStatus,parkingLotID, parkZoneName, firstPoint, secondPoint,thirdPoint,fourthPoint):
+      URL = self.apiEndpoint
+      parkingLot_data = {
+        "status": parkingLotStatus,
+        "parkingLotID": parkingLotID,
+        "parkZoneName": parkZoneName,
+        "firstPoint": firstPoint,
+        "secondPoint": secondPoint,
+        "thirdPoint": thirdPoint,
+        "fourthPoint": fourthPoint
+      }
+      data = requests.put(url=URL + "/parkingLots/" + str(targetParkingLotID), data=parkingLot_data)
+      return data
+
+  def deleteParkingLotByID(self, parkingLotID):
+      URL = self.apiEndpoint
+      data = requests.delete(url=URL + "/parkingLots/" + str(parkingLotID))
       return data
 
   def handleParking(self, parkingLotID):
