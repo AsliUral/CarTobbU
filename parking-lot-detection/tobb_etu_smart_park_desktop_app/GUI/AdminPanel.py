@@ -1,10 +1,11 @@
 import sys
-from tobb_etu_smart_park_desktop_app.GUI import VideoEditor
+from tobb_etu_smart_park_desktop_app.GUI import videoEditor
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
-from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer
+from tobb_etu_smart_park_desktop_app.GUI.videoEditor import ShowVideo, ImageViewer
 from PyQt5.QtGui import QIcon
 import numpy
+import sys
 
 class Ui_MainWindow():
     def setupUi(self, MainWindow):
@@ -14,6 +15,8 @@ class Ui_MainWindow():
 
         self.selectedParkingLots = []
         self.occupancyDetectionStarted = False
+        self.slotDetectionStarted = False
+
         self.manager = None
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -46,6 +49,7 @@ class Ui_MainWindow():
         self.gridLayout_4 = QtWidgets.QGridLayout(self.page)
         self.gridLayout_4.setObjectName("gridLayout_4")
 
+
         self.gridLayout.addWidget(self.groupBox, 1, 0, 1, 1)
         self.tabWidget_2 = QtWidgets.QTabWidget(self.tab)
         self.tabWidget_2.setObjectName("tabWidget_2")
@@ -67,8 +71,6 @@ class Ui_MainWindow():
         self.tableWidget.setObjectName("tableWidget")
 
         self.tableWidget.itemSelectionChanged.connect(self.selectionChange)
-
-        #self.tableWidget.itemChanged.connect(self.itemChange)
 
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(150)
@@ -124,6 +126,11 @@ class Ui_MainWindow():
         self.detectOccupancy.setObjectName("detectOccupancy")
         self.horizontalLayout.addWidget(self.detectOccupancy)
         self.detectOccupancy.clicked.connect(self.startOccupancyDetection)
+
+        self.detectSlot = QtWidgets.QPushButton(self.centralwidget)
+        self.detectSlot.setObjectName("detectSlot")
+        self.horizontalLayout.addWidget(self.detectSlot)
+        self.detectSlot.clicked.connect(self.startSlotDetection)
 
 
 
@@ -247,24 +254,78 @@ class Ui_MainWindow():
         self.tabWidget_2.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def openNewVideo(self):
-        self.manager.changeVideo()
-
     def upSelectedParkingLots(self):
-        print("Will be implemented")
+        for parking_lot in self.selectedParkingLots:
+            x1 = parking_lot.points[0][0][0]
+            y1 = parking_lot.points[0][0][1]
+
+            x2 = parking_lot.points[1][0][0]
+            y2 = parking_lot.points[1][0][1]
+
+            x3 = parking_lot.points[2][0][0]
+            y3 = parking_lot.points[2][0][1]
+
+            x4 = parking_lot.points[3][0][0]
+            y4 = parking_lot.points[3][0][1]
+
+            pts = numpy.array([list( (x1,y1 - 1) ), list((x2,y2 - 1)), list((x3,y3 - 1)), list((x4,y4 - 1))], numpy.int32)
+            parking_lot.points = pts.reshape((-1, 1, 2))
 
 
     def downSelectedParkingLots(self):
-        print("Will be implemented")
+        for parking_lot in self.selectedParkingLots:
+            x1 = parking_lot.points[0][0][0]
+            y1 = parking_lot.points[0][0][1]
+
+            x2 = parking_lot.points[1][0][0]
+            y2 = parking_lot.points[1][0][1]
+
+            x3 = parking_lot.points[2][0][0]
+            y3 = parking_lot.points[2][0][1]
+
+            x4 = parking_lot.points[3][0][0]
+            y4 = parking_lot.points[3][0][1]
+
+            pts = numpy.array([list( (x1,y1 + 1) ), list((x2,y2 + 1)), list((x3,y3 + 1)), list((x4,y4 + 1))], numpy.int32)
+            parking_lot.points = pts.reshape((-1, 1, 2))
 
 
     def leftSelectedParkingLots(self):
-        print("Will be implemented")
+        for parking_lot in self.selectedParkingLots:
+            x1 = parking_lot.points[0][0][0]
+            y1 = parking_lot.points[0][0][1]
+
+            x2 = parking_lot.points[1][0][0]
+            y2 = parking_lot.points[1][0][1]
+
+            x3 = parking_lot.points[2][0][0]
+            y3 = parking_lot.points[2][0][1]
+
+            x4 = parking_lot.points[3][0][0]
+            y4 = parking_lot.points[3][0][1]
+
+            pts = numpy.array([list((x1- 1, y1)), list((x2- 1, y2 )), list((x3- 1, y3 )), list((x4- 1, y4 ))],
+                              numpy.int32)
+            parking_lot.points = pts.reshape((-1, 1, 2))
 
 
     def rightSelectedParkingLots(self):
-        print("Will be implemented")
+        for parking_lot in self.selectedParkingLots:
+            x1 = parking_lot.points[0][0][0]
+            y1 = parking_lot.points[0][0][1]
 
+            x2 = parking_lot.points[1][0][0]
+            y2 = parking_lot.points[1][0][1]
+
+            x3 = parking_lot.points[2][0][0]
+            y3 = parking_lot.points[2][0][1]
+
+            x4 = parking_lot.points[3][0][0]
+            y4 = parking_lot.points[3][0][1]
+
+            pts = numpy.array([list((x1 + 1, y1)), list((x2 + 1, y2)), list((x3 + 1, y3)), list((x4 + 1, y4))],
+                              numpy.int32)
+            parking_lot.points = pts.reshape((-1, 1, 2))
 
     def getFirstPoint(self, points):
         x1 = points[0][0][0]
@@ -297,9 +358,9 @@ class Ui_MainWindow():
             if (parking_lot.from_server == True):
                 print("serverdan sil")
                 API.deleteParkingLotByID(parking_lot.parkingLotID)
-                #parking_lot.deleted = True
+                # parking_lot.deleted = True
                 self.manager.parking_lots.remove(parking_lot)
-                #self.parkingLots.remove(parking_lot)
+                # self.parkingLots.remove(parking_lot)
 
     def sendServer(self):
         API = self.manager.API
@@ -319,7 +380,6 @@ class Ui_MainWindow():
                 fourth = self.getFourthPoint(parking_lot.points)
                 API.createParkingLot("Available", parking_lot.parkingLotID, parkingZone, first, second, third, fourth)
                 parking_lot.from_server = True
-
 
     def selectAll(self):
         print("Select All")
@@ -344,6 +404,19 @@ class Ui_MainWindow():
             self.occupancyDetectionStarted = False
             self.detectOccupancy.setText("Start Detection")
 
+    def startSlotDetection(self):
+
+        import sys
+        sys.path.append('C:/tensorflow1/models; C:/tensorflow1/models/research;C:/tensorflow1/models/research/slim')
+
+        if self.slotDetectionStarted == False:
+            self.manager.slotDetectionStarted = True
+            self.slotDetectionStarted = True
+            self.detectSlot.setText("Stop ParkingSlot Detection")
+        else:
+            self.manager.slotDetectionStarted = False
+            self.slotDetectionStarted = False
+            self.detectSlot.setText("Show ParkingSlot Detection")
 
     def highlightParkingLot(self, parkingLotID):
         for parking_lot in self.manager.parking_lots:
@@ -379,14 +452,6 @@ class Ui_MainWindow():
             if (i % 5 == 1):
                 self.highlightParkingLot(str(row.text()))
             i = i + 1
-
-    """
-    def itemChange(self, item):
-
-        if (item.column() == 0 and item.text() != ""):
-            print("Heyo : ", item.text())
-    """
-
 
     def tabChange(self, i):
         if (i == 1):
@@ -473,7 +538,7 @@ class Ui_MainWindow():
 
 
         self.detectOccupancy.setText(_translate("MainWindow", "Start Detection"))
-
+        self.detectSlot.setText(_translate("MainWindow", "Detection of Parking Slot"))
 
         #self.menuMenu.setTitle(_translate("MainWindow", "&Menu"))
         #self.menuSubmenu_2.setTitle(_translate("MainWindow", "&Submenu 2"))
@@ -509,6 +574,7 @@ def main():
 
     videoViewer.triggerFunction = ui.notifyFunction
     window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
+
 
     app.setStyleSheet(PyQt5_stylesheets.load_stylesheet_pyqt5(style="style_Dark"))
 
