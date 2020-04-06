@@ -26,6 +26,8 @@ from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
 from parking_slot_detection.utils import label_map_util
 from parking_slot_detection.utils import visualization_utils as vis_util
 
+
+rescaleFactor = None
 def getPoint(point):
     if point is not None:
         point = point[1:len(point) - 1]
@@ -74,13 +76,16 @@ startDetection = False
 currentlyMarked = False
 
 
+
+
 def draw_polygon(event):
     global pt1, pt2, pt3, pt4, topLeft_clicked, botRight_clicked, topRight_clicked, botLeft_clicked
     global currentlyMarked
     x = event.x()
     y = event.y()
-    x=int(x*100/66)
-    y=int(y*100/66)
+    if(rescaleFactor):
+        x=int(x*100/66)
+        y=int(y*100/66)
 
     if topLeft_clicked == True and botRight_clicked == True and botLeft_clicked == True and topRight_clicked == True:
         topLeft_clicked = False
@@ -128,8 +133,8 @@ def slot_method():
 
 class ShowVideo(QtCore.QObject):
     #camera_port = "parking_lot_1.mp4"
-    camera_port = "tobb_etu_main.mp4"
-    #camera_port = "parking_lot_1.mp4"
+    #camera_port = "tobb_etu_main.mp4"
+    camera_port = "parking_lot_1.mp4"
     camera = cv2.VideoCapture(camera_port)
     VideoSignal = QtCore.pyqtSignal(QtGui.QImage)
 
@@ -148,11 +153,31 @@ class ShowVideo(QtCore.QObject):
         self.slotFirstRun = True
 
     def rescale_frame(self,frame):
-        percent = 66
-        width = int(frame.shape[1] * percent / 100)
-        height = int(frame.shape[0] * percent / 100)
-        dim = (width, height)
-        return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+        scale_percent_val = 66
+        from win32api import GetSystemMetrics
+        generalWidth = 1920
+        generalHeight = 1080
+
+        if GetSystemMetrics(0) > generalWidth and GetSystemMetrics(1) > generalHeight :
+            width = int(frame.shape[1])
+            height = int(frame.shape[0])
+            dim = (width, height)
+            global rescaleFactor
+            rescaleFactor=False
+            return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+        else:
+            width = int(frame.shape[1])
+            height = int(frame.shape[0])
+            if width < GetSystemMetrics(0) and height < GetSystemMetrics(1):
+                dim = (width, height)
+                rescaleFactor = False
+                return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+            else:
+                width = int(frame.shape[1] * scale_percent_val / 100)
+                height = int(frame.shape[0] * scale_percent_val / 100)
+                dim = (width, height)
+                rescaleFactor = True
+                return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
     @QtCore.pyqtSlot()
     def startVideo(self):
