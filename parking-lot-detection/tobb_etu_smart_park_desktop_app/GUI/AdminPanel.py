@@ -1,14 +1,31 @@
 import sys
-from tobb_etu_smart_park_desktop_app.GUI import videoEditor
+
+from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget
+from PyQt5.QtCore import Qt
+
+from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
+from tobb_etu_smart_park_desktop_app.GUI import VideoEditor
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
-from tobb_etu_smart_park_desktop_app.GUI.videoEditor import ShowVideo, ImageViewer
+from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QIcon
 import numpy
 import sys
 
+from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
+
+
 class Ui_MainWindow():
     def setupUi(self, MainWindow):
+        self.parkzones = []
+        cameraID = "global"
+        parkZoneID = "global"
+        parkZoneName = "global"
+
+        apiKey = "ABC"
+        self.globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
+
         self.mainW = MainWindow
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1068, 824)
@@ -154,6 +171,7 @@ class Ui_MainWindow():
 
 
 
+
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1068, 23))
         self.menubar.setObjectName("menubar")
@@ -182,6 +200,7 @@ class Ui_MainWindow():
         self.toolBar = QtWidgets.QToolBar(MainWindow)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+
 
         self.up_button_action = QtWidgets.QAction(QIcon('./buttonIcons/up.jpg'), "Up", MainWindow)
         self.up_button_action.setStatusTip("Up")
@@ -228,19 +247,22 @@ class Ui_MainWindow():
         self.toolBar.addAction(self.deleteParkingSlot)
 
 
-        #self.dockWidget2 = QtWidgets.QDockWidget(MainWindow)
-        #self.dockWidget2.setObjectName("dockWidget2")
-        self.dockWidgetContents_2 = QtWidgets.QWidget()
-        self.dockWidgetContents_2.setObjectName("dockWidgetContents_2")
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.dockWidgetContents_2)
-        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.docked = QtWidgets.QDockWidget(MainWindow)
+        MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.docked)
+        self.dockedWidget = QtWidgets.QWidget()
+        self.dockedWidget.setObjectName("dockedWidget")
+        self.docked.setWidget(self.dockedWidget)
+        self.dockedWidget.setLayout(QVBoxLayout())
+
+        number = self.getParkingZone()
+        print(number)
+        for parkzone in self.parkzones:
+            self.dockedWidget.layout().addWidget(QPushButton(parkzone.parkZoneName))
 
 
-
-        #self.dockWidget2.setWidget(self.dockWidgetContents_2)
-        #MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(1), self.dockWidget2)
         self.actionSub_menu = QtWidgets.QAction(MainWindow)
         self.actionSub_menu.setObjectName("actionSub_menu")
+
 
 
         #self.menuSubmenu_2.addAction(self.actionSub_menu)
@@ -253,6 +275,22 @@ class Ui_MainWindow():
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
+    def getParkingZone(self):
+        zones_JSON = self.globalAPI.getAllParkZones()
+        counter = 0
+        for i in range(len(zones_JSON)):
+            if (zones_JSON[i]["ParkZoneName"] is not None and zones_JSON[i]["ParkZoneName"] != ''):
+                self.parkzones.append(ParkingZone(
+                    parkingZoneID=zones_JSON[i]["ParkingZoneID"],
+                    parkZoneName=zones_JSON[i]["ParkZoneName"],
+                    API=self.globalAPI))
+                counter += 1
+
+
+        return counter
+
 
     def upSelectedParkingLots(self):
         for parking_lot in self.selectedParkingLots:
@@ -540,6 +578,11 @@ class Ui_MainWindow():
         self.detectOccupancy.setText(_translate("MainWindow", "Start Detection"))
         self.detectSlot.setText(_translate("MainWindow", "Detection of Parking Slot"))
 
+        self.dockedWidget.setWindowTitle(_translate("MainWindow", "Park Zone"))
+
+
+        #self.dockWidget2.setWindowTitle(_translate("MainWindow", "Park Zone"))
+
         #self.menuMenu.setTitle(_translate("MainWindow", "&Menu"))
         #self.menuSubmenu_2.setTitle(_translate("MainWindow", "&Submenu 2"))
 
@@ -551,6 +594,7 @@ class Ui_MainWindow():
 
 
 def main():
+
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QMainWindow()
 
