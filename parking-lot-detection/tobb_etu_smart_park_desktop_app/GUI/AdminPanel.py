@@ -1,24 +1,26 @@
 import sys
 
-from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox
+from PyQt5.QtCore import Qt, QSize
 
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
 from tobb_etu_smart_park_desktop_app.GUI import VideoEditor
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
-from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer
+from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer, getPoint
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QIcon
 import numpy
 import sys
 
+from tobb_etu_smart_park_desktop_app.GUI.parking_lot import ParkingLot
 from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
 
 
 class Ui_MainWindow():
     def setupUi(self, MainWindow):
         self.parkzones = []
+        self.severParkinglots = []
         cameraID = "global"
         parkZoneID = "global"
         parkZoneName = "global"
@@ -267,6 +269,27 @@ class Ui_MainWindow():
 
         return counter
 
+    def getServerParkingLots(self):
+        lots_JSON = self.globalAPI.getAllParkingLots()
+        counter = 0
+        for i in range(len(lots_JSON)):
+            if (lots_JSON[i]["FirstPoint"] is not None and lots_JSON[i]["FirstPoint"] != ''):
+                self.severParkinglots.append(ParkingLot(
+                    from_server=True,
+                    parkingLotID=lots_JSON[i]["ParkingLotID"],
+                    pt1=(
+                    getPoint(lots_JSON[i]["FirstPoint"])[0], getPoint(lots_JSON[i]["FirstPoint"])[1]),
+                    pt2=(
+                    getPoint(lots_JSON[i]["SecondPoint"])[0], getPoint(lots_JSON[i]["SecondPoint"])[1]),
+                    pt3=(
+                    getPoint(lots_JSON[i]["ThirdPoint"])[0], getPoint(lots_JSON[i]["ThirdPoint"])[1]),
+                    pt4=(
+                    getPoint(lots_JSON[i]["FourthPoint"])[0], getPoint(lots_JSON[i]["FourthPoint"])[1]),
+                    API=self.globalAPI,
+                    parkingZone=lots_JSON[i]["ParkZoneName"]))
+
+        return counter
+
 
     def upSelectedParkingLots(self):
         for parking_lot in self.selectedParkingLots:
@@ -491,9 +514,22 @@ class Ui_MainWindow():
         newValue = item.text()
         changedColumn = item.column()
         changedRow = item.row()
-        if (item.isSelected() == True and newValue != "" and changedColumn == 0):
+        if (item.isSelected() == True and newValue != "" and changedColumn == 0 and self.isduplicated(newValue) == False):
             self.manager.parking_lots[changedRow].updateID(newValue)
 
+
+    def isduplicated(self, newValue):
+        isduplicated = False
+        number = self.getServerParkingLots()
+        for lots in self.severParkinglots:
+            if lots.parkingLotID == newValue:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("Error updating duplicate parking lot entry!")
+                msg.setWindowTitle("Error Parking Lots Tab")
+                msg.exec_()
+                isduplicated = True
+        return isduplicated
 
     def tabChange(self, i):
         if (i == 1):
