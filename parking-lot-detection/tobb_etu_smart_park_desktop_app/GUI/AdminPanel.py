@@ -89,26 +89,10 @@ class Ui_MainWindow():
 
         self.tableWidget.itemSelectionChanged.connect(self.selectionChange)
 
-        self.tableWidget.setColumnCount(5)
+        self.tableWidget.itemChanged.connect(self.tableChange)
+
+        self.tableWidget.setColumnCount(6)
         self.tableWidget.setRowCount(150)
-
-
-
-        """ Rows """
-        """
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(0, item)
-
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(1, item)
-
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(2, item)
-
-        item = QtWidgets.QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(3, item)
-
-        """
 
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(0, item)
@@ -125,6 +109,9 @@ class Ui_MainWindow():
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget.setHorizontalHeaderItem(4, item)
 
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(5, item)
+
         self.gridLayout_7.addWidget(self.tableWidget, 0, 0, 1, 1)
         self.tabWidget_2.addTab(self.tab_5, "Parking Slot Table")
 
@@ -133,7 +120,6 @@ class Ui_MainWindow():
         self.dateEdit.setObjectName("dateEdit")
         self.gridLayout.addWidget(self.dateEdit, 2, 0, 1, 1)
         self.tabWidget.addTab(self.tab, "")
-
 
         self.verticalLayout_5.addWidget(self.tabWidget)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -149,8 +135,6 @@ class Ui_MainWindow():
         self.horizontalLayout.addWidget(self.detectSlot)
         self.detectSlot.clicked.connect(self.startSlotDetection)
 
-
-
         self.bt_menu_button_popup = QtWidgets.QToolButton(self.centralwidget)
         self.bt_menu_button_popup.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.bt_menu_button_popup.setObjectName("bt_menu_button_popup")
@@ -161,16 +145,12 @@ class Ui_MainWindow():
         self.line_2.setObjectName("line_2")
         self.horizontalLayout.addWidget(self.line_2)
 
-
         self.toolButton = QtWidgets.QToolButton(self.centralwidget)
         self.toolButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         self.toolButton.setObjectName("toolButton")
         self.horizontalLayout.addWidget(self.toolButton)
         self.verticalLayout_5.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
-
-
-
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1068, 23))
@@ -179,8 +159,6 @@ class Ui_MainWindow():
         self.menuMenu.setObjectName("menuMenu")
 
         self.fileMenu = self.menuMenu.addMenu('&File')
-
-
 
         self.openAction = QtWidgets.QAction('&Open Video')
         self.openAction.triggered.connect(self.openVideo)
@@ -268,8 +246,6 @@ class Ui_MainWindow():
         #self.menuSubmenu_2.addAction(self.actionSub_menu)
         #self.menuMenu.addAction(self.menuSubmenu_2.menuAction())
         self.menubar.addAction(self.menuMenu.menuAction())
-
-        #self.toolBar.addAction(self.actionSub_menu)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -394,8 +370,11 @@ class Ui_MainWindow():
         parkingZone = self.manager.parkZoneName
         for parking_lot in self.selectedParkingLots:
             if (parking_lot.from_server == True):
-                print("serverdan sil")
                 API.deleteParkingLotByID(parking_lot.parkingLotID)
+                # parking_lot.deleted = True
+                self.manager.parking_lots.remove(parking_lot)
+                # self.parkingLots.remove(parking_lot)
+            else:
                 # parking_lot.deleted = True
                 self.manager.parking_lots.remove(parking_lot)
                 # self.parkingLots.remove(parking_lot)
@@ -405,12 +384,17 @@ class Ui_MainWindow():
         parkingZone = self.manager.parkZoneName
         for parking_lot in self.selectedParkingLots:
             if (parking_lot.from_server == True):
+                print(parking_lot.parkingLotID)
                 first = self.getFirstPoint(parking_lot.points)
                 second = self.getSecondPoint(parking_lot.points)
                 third = self.getThirdPoint(parking_lot.points)
                 fourth = self.getFourthPoint(parking_lot.points)
-                API.updateParkingLotByID(parking_lot.parkingLotID, "Available", parking_lot.updatedParkingLotID
+                if (parking_lot.originalID != None):
+                    API.updateParkingLotByID(parking_lot.originalID, "Available", parking_lot.parkingLotID
                                          , parking_lot.parkingZone, first, second, third, fourth)
+                else:
+                    API.updateParkingLotByID(parking_lot.parkingLotID, "Available", parking_lot.parkingLotID
+                                             , parking_lot.parkingZone, first, second, third, fourth)
             else:
                 first = self.getFirstPoint(parking_lot.points)
                 second = self.getSecondPoint(parking_lot.points)
@@ -467,7 +451,7 @@ class Ui_MainWindow():
         for parking_lot in self.manager.parking_lots:
             isSelected = False
             for row in selectedRows:
-                if (i % 5 == 1):
+                if (i % 6 == 1):
                     if (parking_lot.parkingLotID == row.text()):
                         isSelected =True
                         tempSelecteds.append(parking_lot)
@@ -487,9 +471,29 @@ class Ui_MainWindow():
         i = 1
         self.unSelectParkingLots(selectedRows)
         for row in selectedRows:
-            if (i % 5 == 1):
+            if (i % 6 == 1):
                 self.highlightParkingLot(str(row.text()))
             i = i + 1
+
+    def findChanged(self):
+        for parking_lot in self.selectedParkingLots:
+            if (parking_lot.from_server == True):
+                #API.deleteParkingLotByID(parking_lot.parkingLotID)
+                # parking_lot.deleted = True
+                self.manager.parking_lots.remove(parking_lot)
+                # self.parkingLots.remove(parking_lot)
+            else:
+                # parking_lot.deleted = True
+                self.manager.parking_lots.remove(parking_lot)
+                # self.parkingLots.remove(parking_lot)
+
+    def tableChange(self, item):
+        newValue = item.text()
+        changedColumn = item.column()
+        changedRow = item.row()
+        if (item.isSelected() == True and newValue != "" and changedColumn == 0):
+            self.manager.parking_lots[changedRow].updateID(newValue)
+
 
     def tabChange(self, i):
         if (i == 1):
@@ -502,6 +506,7 @@ class Ui_MainWindow():
                 self.tableWidget.setItem(j, 2, QtWidgets.QTableWidgetItem(""))
                 self.tableWidget.setItem(j, 3, QtWidgets.QTableWidgetItem(""))
                 self.tableWidget.setItem(j, 4, QtWidgets.QTableWidgetItem(""))
+                self.tableWidget.setItem(j, 5, QtWidgets.QTableWidgetItem(""))
                 j = j + 1
 
             for parking_lot in self.manager.parking_lots:
@@ -527,34 +532,17 @@ class Ui_MainWindow():
                 self.tableWidget.setItem(i, 2, QtWidgets.QTableWidgetItem(secondPoint))
                 self.tableWidget.setItem(i, 3, QtWidgets.QTableWidgetItem(thirdPoint))
                 self.tableWidget.setItem(i, 4, QtWidgets.QTableWidgetItem(fourthPoint))
+                self.tableWidget.setItem(i, 5, QtWidgets.QTableWidgetItem(parking_lot.parkingZone))
+
                 i = i + 1
 
     def openVideo(self):
         print("Menu")
 
-
-    def notifyFunction(self):
-        print("Bana dokundu")
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), _translate("MainWindow", "Live Stream"))
-
-        """ Rows """
-        """
-        item = self.tableWidget.verticalHeaderItem(0)
-        item.setText(_translate("MainWindow", "New Row"))
-
-        item = self.tableWidget.verticalHeaderItem(1)
-        item.setText(_translate("MainWindow", "New Row"))
-
-        item = self.tableWidget.verticalHeaderItem(2)
-        item.setText(_translate("MainWindow", "New Row"))
-
-        item = self.tableWidget.verticalHeaderItem(3)
-        item.setText(_translate("MainWindow", "New Row"))
-        """
 
         """ Columns """
 
@@ -573,7 +561,8 @@ class Ui_MainWindow():
         item = self.tableWidget.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Point 4"))
 
-
+        item = self.tableWidget.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "Parking Zone Name"))
 
         self.detectOccupancy.setText(_translate("MainWindow", "Start Detection"))
         self.detectSlot.setText(_translate("MainWindow", "Detection of Parking Slot"))
@@ -616,7 +605,7 @@ def main():
     ui.VideoPlayer.addWidget(startVideoButton)
     ui.manager = vid
 
-    videoViewer.triggerFunction = ui.notifyFunction
+    #videoViewer.triggerFunction = ui.notifyFunction
     window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
 
 

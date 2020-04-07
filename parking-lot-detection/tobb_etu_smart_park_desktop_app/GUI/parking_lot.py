@@ -11,10 +11,15 @@ class ParkingLot:
     self.parkingZone = parkingZone
     self.API = API
     self.updatedParkingLotID = parkingLotID
+    self.originalID = None
     self.from_server = from_server
     self.highlighted = False
     self.deleted = False
+    self.isUpdatedFromTable = False
 
+  def updateID(self, newID):
+      self.originalID = self.parkingLotID
+      self.parkingLotID = newID
 
   def getParkingLotID(self):
     return self.parkingLotID
