@@ -16,17 +16,41 @@ import sys
 from tobb_etu_smart_park_desktop_app.GUI.parking_lot import ParkingLot
 from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
 
+cameraID = "global"
+parkZoneID = "global"
+parkZoneName = "global"
+
+apiKey = "ABC"
+globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
+
+
+def getParkingZone():
+    zones_JSON = globalAPI.getAllParkZones()
+    counter = 0
+    parkzones = []
+    #zones_JSON[i]["ParkZoneName"] this will change with zones_JSON[i]["CameraIP"] after server update
+    for i in range(len(zones_JSON)):
+        if (zones_JSON[i]["ParkZoneName"] is not None and zones_JSON[i]["ParkZoneName"] != ''):
+            cameraIP = "151.654.15.76"
+            if counter == 0:
+                cameraIP = "151.654.15.76"
+            elif counter == 1:
+                cameraIP = "151.654.15.75"
+            parkzones.append(ParkingZone(
+                parkingZoneID=zones_JSON[i]["ParkingZoneID"],
+                parkZoneName=zones_JSON[i]["ParkZoneName"],
+                API=globalAPI,
+                cameraIP=cameraIP + ".mp4"
+            ))
+            counter += 1
+    return parkzones
 
 class Ui_MainWindow():
     def setupUi(self, MainWindow):
         self.parkzones = []
         self.severParkinglots = []
-        cameraID = "global"
-        parkZoneID = "global"
-        parkZoneName = "global"
 
-        apiKey = "ABC"
-        self.globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
+        self.parkZoneButtons = []
 
         self.mainW = MainWindow
         MainWindow.setObjectName("MainWindow")
@@ -127,14 +151,14 @@ class Ui_MainWindow():
         self.lotIDLetterText.setPlaceholderText("LotLetter")
         self.lotIDLetterText.textChanged.connect(self.changeLetter)
         self.lotIDLetterText.setObjectName("lotIDLetterEdit")
-        self.gridLayout.addWidget(self.lotIDLetterText, 2, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.lotIDLetterText, 2, 0, 1, 1)
 
         self.autoIncrementText = QtWidgets.QLineEdit(self.tab)
         self.autoIncrementText.setFixedWidth(175)
         self.autoIncrementText.setPlaceholderText("AutoIncrement")
         self.autoIncrementText.textChanged.connect(self.changeIncrement)
         self.autoIncrementText.setObjectName("lotIDLetterEdit2")
-        self.gridLayout.addWidget(self.autoIncrementText, 3, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.autoIncrementText, 3, 0, 1, 1)
 
 
         self.tabWidget.addTab(self.tab, "")
@@ -250,12 +274,6 @@ class Ui_MainWindow():
         self.docked.setWidget(self.dockedWidget)
         self.dockedWidget.setLayout(QVBoxLayout())
 
-        number = self.getParkingZone()
-        print(number)
-        for parkzone in self.parkzones:
-            self.dockedWidget.layout().addWidget(QPushButton(parkzone.parkZoneName))
-
-
         self.actionSub_menu = QtWidgets.QAction(MainWindow)
         self.actionSub_menu.setObjectName("actionSub_menu")
 
@@ -270,6 +288,27 @@ class Ui_MainWindow():
         self.tabWidget_2.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+
+    def findParkZone(self, parkZoneName):
+        for parkzone in self.parkzones:
+            if (parkZoneName == parkzone.parkZoneName):
+                parkzone.isSelected = True
+                self.manager.startVideo()
+            else:
+                parkzone.isSelected = False
+
+
+    def parkZoneSelected(self):
+        counter = 0
+        for button in self.parkZoneButtons:
+            if(button.isChecked() == False):
+                self.parkzones[counter].isSelected = True
+            else:
+                self.parkzones[counter].isSelected = False
+            counter = counter + 1
+
+        self.manager.parkzones = self.parkzones
+
     def changeIncrement(self, newIncrementValue):
         self.manager.autoIncrement = newIncrementValue
         print("Change incerement : " , newIncrementValue)
@@ -278,22 +317,8 @@ class Ui_MainWindow():
         self.manager.autoLetter = newAutoLetter
         print("Change auto letter : ", newAutoLetter)
 
-    def getParkingZone(self):
-        zones_JSON = self.globalAPI.getAllParkZones()
-        counter = 0
-        for i in range(len(zones_JSON)):
-            if (zones_JSON[i]["ParkZoneName"] is not None and zones_JSON[i]["ParkZoneName"] != ''):
-                self.parkzones.append(ParkingZone(
-                    parkingZoneID=zones_JSON[i]["ParkingZoneID"],
-                    parkZoneName=zones_JSON[i]["ParkZoneName"],
-                    API=self.globalAPI))
-                counter += 1
-
-
-        return counter
-
     def getServerParkingLots(self):
-        lots_JSON = self.globalAPI.getAllParkingLots()
+        lots_JSON = globalAPI.getAllParkingLots()
         counter = 0
         for i in range(len(lots_JSON)):
             if (lots_JSON[i]["FirstPoint"] is not None and lots_JSON[i]["FirstPoint"] != ''):
@@ -308,7 +333,7 @@ class Ui_MainWindow():
                     getPoint(lots_JSON[i]["ThirdPoint"])[0], getPoint(lots_JSON[i]["ThirdPoint"])[1]),
                     pt4=(
                     getPoint(lots_JSON[i]["FourthPoint"])[0], getPoint(lots_JSON[i]["FourthPoint"])[1]),
-                    API=self.globalAPI,
+                    API=globalAPI,
                     parkingZone=lots_JSON[i]["ParkZoneName"]))
 
         return counter
@@ -430,7 +455,6 @@ class Ui_MainWindow():
         parkingZone = self.manager.parkZoneName
         for parking_lot in self.selectedParkingLots:
             if (parking_lot.from_server == True):
-                print(parking_lot.parkingLotID)
                 first = self.getFirstPoint(parking_lot.points)
                 second = self.getSecondPoint(parking_lot.points)
                 third = self.getThirdPoint(parking_lot.points)
@@ -654,18 +678,32 @@ def main():
 
     thread = QtCore.QThread()
     thread.start()
+    cameraList = ["tobb_etu_main.mp4", "parking_lot_1.mp4"]
     vid = ShowVideo()
+    vid.cameraList = cameraList
+    vid.camera = "1"
     vid.moveToThread(thread)
     videoViewer = ImageViewer()
 
     vid.VideoSignal.connect(videoViewer.setImage)
-    startVideoButton = QtWidgets.QPushButton('Open Camera')
-    startVideoButton.clicked.connect(vid.startVideo)
+
+    parkzones = getParkingZone()
+    vid.parkzones = parkzones
+    ui.parkzones = parkzones
+    for parkzone in parkzones:
+        parkZoneButton = QPushButton(parkzone.parkZoneName)
+        parkZoneButton.setCheckable(True)
+        parkZoneButton.toggle()
+        #parkZoneButton.clicked.connect(ui.parkZoneSelected)
+        parkZoneButton.clicked.connect(vid.startVideo)
+        ui.parkZoneButtons.append(parkZoneButton)
+        ui.dockedWidget.layout().addWidget(parkZoneButton)
+
+    for button in ui.parkZoneButtons:
+        button.clicked.connect(ui.parkZoneSelected)
 
     ui.VideoPlayer.addWidget(videoViewer)
-    ui.VideoPlayer.addWidget(startVideoButton)
     ui.manager = vid
-    #videoViewer.triggerFunction = ui.notifyFunction
     window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
 
 
