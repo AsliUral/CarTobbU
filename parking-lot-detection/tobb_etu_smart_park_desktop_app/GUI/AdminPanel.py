@@ -34,6 +34,9 @@ class Ui_MainWindow():
         self.occupancyDetectionStarted = False
         self.slotDetectionStarted = False
 
+        self.autoIncrementVal = None
+        self.slotIDLetter = None
+
         self.manager = None
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -116,9 +119,22 @@ class Ui_MainWindow():
         self.tabWidget_2.addTab(self.tab_5, "Parking Slot Table")
 
         self.gridLayout.addWidget(self.tabWidget_2, 0, 0, 1, 1)
-        self.dateEdit = QtWidgets.QDateEdit(self.tab)
-        self.dateEdit.setObjectName("dateEdit")
-        self.gridLayout.addWidget(self.dateEdit, 2, 0, 1, 1)
+
+        self.lotIDLetterText = QtWidgets.QLineEdit(self.tab)
+        self.lotIDLetterText.setFixedWidth(175)
+        self.lotIDLetterText.setPlaceholderText("LotLetter")
+        self.lotIDLetterText.textChanged.connect(self.changeLetter)
+        self.lotIDLetterText.setObjectName("lotIDLetterEdit")
+        self.gridLayout.addWidget(self.lotIDLetterText, 2, 0, 1, 1)
+
+        self.autoIncrementText = QtWidgets.QLineEdit(self.tab)
+        self.autoIncrementText.setFixedWidth(175)
+        self.autoIncrementText.setPlaceholderText("AutoIncrement")
+        self.autoIncrementText.textChanged.connect(self.changeIncrement)
+        self.autoIncrementText.setObjectName("lotIDLetterEdit2")
+        self.gridLayout.addWidget(self.autoIncrementText, 3, 0, 1, 1)
+
+
         self.tabWidget.addTab(self.tab, "")
 
         self.verticalLayout_5.addWidget(self.tabWidget)
@@ -252,6 +268,13 @@ class Ui_MainWindow():
         self.tabWidget_2.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def changeIncrement(self, newIncrementValue):
+        self.manager.autoIncrement = newIncrementValue
+        print("Change incerement : " , newIncrementValue)
+
+    def changeLetter(self, newAutoLetter):
+        self.manager.autoLetter = newAutoLetter
+        print("Change auto letter : ", newAutoLetter)
 
     def getParkingZone(self):
         zones_JSON = self.globalAPI.getAllParkZones()
@@ -496,6 +519,8 @@ class Ui_MainWindow():
 
 
     def tabChange(self, i):
+        self.autoIncrementText.setText(str(self.manager.autoIncrement))
+        self.lotIDLetterText.setText(str(self.manager.autoLetter))
         if (i == 1):
             self.parkingLots = self.manager.parking_lots
             i = 0
@@ -604,7 +629,6 @@ def main():
     ui.VideoPlayer.addWidget(videoViewer)
     ui.VideoPlayer.addWidget(startVideoButton)
     ui.manager = vid
-
     #videoViewer.triggerFunction = ui.notifyFunction
     window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
 

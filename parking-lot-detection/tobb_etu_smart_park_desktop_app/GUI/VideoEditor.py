@@ -66,7 +66,8 @@ parkZoneName = "Main Car Park 45"
 apiKey = "ABC"
 API = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
 
-parking_lots, tempID  = get_parking_lots(API)
+parking_lots, autoIncrement  = get_parking_lots(API)
+autoLetter = 'Q'
 
 COLOR_WHITE = (255, 255, 255)
 
@@ -133,8 +134,8 @@ def slot_method():
 
 class ShowVideo(QtCore.QObject):
     #camera_port = "parking_lot_1.mp4"
-    #camera_port = "tobb_etu_main.mp4"
-    camera_port = "parking_lot_1.mp4"
+    camera_port = "tobb_etu_main.mp4"
+    #camera_port = "parking_lot_1.mp4"
     camera = cv2.VideoCapture(camera_port)
     VideoSignal = QtCore.pyqtSignal(QtGui.QImage)
 
@@ -151,6 +152,8 @@ class ShowVideo(QtCore.QObject):
 
         self.slotDetectionStarted = False
         self.slotFirstRun = True
+        self.autoIncrement = autoIncrement
+        self.autoLetter = autoLetter
 
     def rescale_frame(self,frame):
         scale_percent_val = 66
@@ -197,7 +200,7 @@ class ShowVideo(QtCore.QObject):
                 if self.slotDetectionStarted == False:
                     ret, frame = self.camera.read()
 
-                    global currentlyMarked, tempID
+                    global currentlyMarked
                     self.parking_lots = parking_lots
                     for parking_lot in parking_lots:
                         parking_lot.draw_parking_lot(frame)
@@ -205,11 +208,12 @@ class ShowVideo(QtCore.QObject):
                         parking_lot.draw_parking_lot_id(frame)
 
                     if topLeft_clicked and botRight_clicked and topRight_clicked and botLeft_clicked and not currentlyMarked:
-                        parking_lot = ParkingLot(pt1, pt2, pt3, pt4, "Q" + str(tempID), "Ara Otopark", None,
+                        self.autoIncrement = int(self.autoIncrement)
+                        parking_lot = ParkingLot(pt1, pt2, pt3, pt4, str(self.autoLetter) + str(self.autoIncrement), "Ara Otopark", None,
                                                  from_server=False)
                         parking_lots.append(parking_lot)
                         parking_lot.draw_parking_lot(frame)
-                        tempID = tempID + 1
+                        self.autoIncrement = self.autoIncrement + 1
                         currentlyMarked = True
 
                     frame = self.rescale_frame(frame)
