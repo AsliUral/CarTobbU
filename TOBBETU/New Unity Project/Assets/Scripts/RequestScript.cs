@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 public class RequestScript : MonoBehaviour{
 ParkingLots[] parkingLotsArray;
 Cars[] carsArray;
+public static int numAvailable;
 public GameObject car;
 private List<GameObject> carList;
 
@@ -55,6 +56,7 @@ private List<GameObject> carList;
 
                     if((lot.ParkingLotStatus+"").Equals("Available")){
                         cubeRenderer.material.SetColor("_Color", Color.green);
+                            numAvailable++;
                             string cn="CAR"+lot.ParkingLotID+"(Clone)";
                             GameObject ex=GameObject.Find(cn);
                             if(ex!=null){
@@ -133,7 +135,7 @@ private List<GameObject> carList;
        //newCar.gameObject.GetComponent<Renderer>().material = Instantiate(origin.gameObject.GetComponent<Renderer>().material);
         //newCar.GetComponent<Renderer>().material.SetColor("_Color",color);
        MaterialPropertyBlock props = new MaterialPropertyBlock();
-       props.AddColor("_Color", col);
+       props.SetColor("_Color", col);
        newCar.GetComponent<Renderer>().SetPropertyBlock(props);
        newCar.GetComponent<Renderer>().material.SetColor("_Color",col);
         //newCar.SetColor(col);
