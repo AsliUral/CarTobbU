@@ -1,6 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox
+import PyQt5
+from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox, QFrame
 from PyQt5.QtCore import Qt, QSize
 
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
@@ -9,12 +10,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
 from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer, getPoint
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 import numpy
 import sys
 
 from tobb_etu_smart_park_desktop_app.GUI.parking_lot import ParkingLot
 from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
+
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox)
+
 
 
 class Ui_MainWindow():
@@ -127,14 +131,14 @@ class Ui_MainWindow():
         self.lotIDLetterText.setPlaceholderText("LotLetter")
         self.lotIDLetterText.textChanged.connect(self.changeLetter)
         self.lotIDLetterText.setObjectName("lotIDLetterEdit")
-        self.gridLayout.addWidget(self.lotIDLetterText, 2, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.lotIDLetterText, 2, 0, 1, 1)
 
         self.autoIncrementText = QtWidgets.QLineEdit(self.tab)
         self.autoIncrementText.setFixedWidth(175)
         self.autoIncrementText.setPlaceholderText("AutoIncrement")
         self.autoIncrementText.textChanged.connect(self.changeIncrement)
         self.autoIncrementText.setObjectName("lotIDLetterEdit2")
-        self.gridLayout.addWidget(self.autoIncrementText, 3, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.autoIncrementText, 3, 0, 1, 1)
 
 
         self.tabWidget.addTab(self.tab, "")
@@ -269,6 +273,7 @@ class Ui_MainWindow():
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
     def changeIncrement(self, newIncrementValue):
         self.manager.autoIncrement = newIncrementValue
@@ -640,18 +645,92 @@ class Ui_MainWindow():
         #self.dockWidget2.setWindowTitle(_translate("MainWindow", "Parking Slots"))
         #self.actionSub_menu.setToolTip(_translate("MainWindow", "submenu"))
 
+class LoginForm(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.manager = None
+        self.setWindowTitle('Login Form')
+        self.setWindowState(Qt.WindowActive)
+        self.resize(500, 120)
+        self.center()
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
 
+        layout = QGridLayout()
+
+        label_name = QLabel("Username",self)
+        self.lineEdit_username = QLineEdit()
+        self.lineEdit_username.setPlaceholderText('Please enter your username')
+        layout.addWidget(label_name, 0, 0)
+        layout.addWidget(self.lineEdit_username, 0, 1)
+
+        labelPassword = QLabel("Password", self)
+        labelPassword.move(60, 224)
+
+        framePassword = QFrame(self)
+        framePassword.setFrameShape(QFrame.StyledPanel)
+        framePassword.setFixedWidth(280)
+        framePassword.setFixedHeight(28)
+        framePassword.move(60, 250)
+
+        self.lineEditPassword = QLineEdit(framePassword)
+        self.lineEditPassword.setFrame(False)
+        self.lineEditPassword.setEchoMode(QLineEdit.Password)
+        self.lineEditPassword.setTextMargins(8, 0, 4, 1)
+        self.lineEditPassword.setFixedWidth(238)
+        self.lineEditPassword.setFixedHeight(26)
+        self.lineEditPassword.move(40, 1)
+        self.lineEditPassword.setPlaceholderText('Please enter your password')
+
+
+        layout.addWidget(labelPassword)
+        layout.addWidget(self.lineEditPassword, 1,1)
+
+        button_login = QPushButton('Login')
+        button_login.clicked.connect(self.check_password)
+        layout.addWidget(button_login, 2, 0, 1, 2)
+        layout.setRowMinimumHeight(2, 75)
+        self.setLayout(layout)
+
+
+    def center(self):
+        frameGm = self.frameGeometry()
+        print(frameGm)
+        screen = PyQt5.QtWidgets.QApplication.desktop().screenNumber(
+            PyQt5.QtWidgets.QApplication.desktop().cursor().pos())
+        centerPoint = PyQt5.QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        frameGm.moveCenter(centerPoint)
+        self.move(frameGm.topLeft())
+
+    def check_password(self):
+        msg = QMessageBox()
+        username = self.lineEdit_username.text()
+        password =  self.lineEditPassword.text()
+
+        API = self.manager.API
+        val = API.login(username,password)
+        print(val)
+        if self.lineEdit_username.text() == 'Usernmae' and self.lineEditPassword.text() == '000':
+            msg.setText('Success')
+            msg.exec_()
+            self.app.quit()
+        else:
+            msg.setText('Incorrect Password')
+            msg.exec_()
 
 
 def main():
 
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QMainWindow()
-
-
+    form = LoginForm()
+    window.show()
+    form.show()
+    getattr(form, "raise")()
+    form.activateWindow()
+    window.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect())
     ui = Ui_MainWindow()
     ui.setupUi(window)
-
     thread = QtCore.QThread()
     thread.start()
     vid = ShowVideo()
