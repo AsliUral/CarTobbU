@@ -133,15 +133,17 @@ def slot_method():
     print('slot method called.')
 
 class ShowVideo(QtCore.QObject):
-    #camera_port = "parking_lot_1.mp4"
-    camera_port = "tobb_etu_main.mp4"
-    #camera_port = "parking_lot_1.mp4"
-    camera = cv2.VideoCapture(camera_port)
     VideoSignal = QtCore.pyqtSignal(QtGui.QImage)
-
 
     def __init__(self, parent=None):
         super(ShowVideo, self).__init__(parent)
+        # camera_port = "parking_lot_1.mp4"
+        #self.camera_port = "tobb_etu_main.mp4"
+        # camera_port = "parking_lot_1.mp4"
+        #self.camera = cv2.VideoCapture(self.camera_port)
+
+
+
         self.parking_lots = []
         self.API = API
         self.parkZoneID = parkZoneID
@@ -154,6 +156,7 @@ class ShowVideo(QtCore.QObject):
         self.slotFirstRun = True
         self.autoIncrement = autoIncrement
         self.autoLetter = autoLetter
+        self.run_video = False
 
     def rescale_frame(self,frame):
         scale_percent_val = 66
@@ -183,67 +186,103 @@ class ShowVideo(QtCore.QObject):
                 return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
     @QtCore.pyqtSlot()
+    def stopVideo(self):
+        self.run_video = False
+        print("Stop video")
+
+    @QtCore.pyqtSlot()
     def startVideo(self):
-        run_video = True
-        while run_video:
+        self.camera_port = 0
+        for zone in (self.parkzones):
+            if (zone.isSelected == True):
+                self.camera_port = zone.cameraIP
 
-            if (self.occupancyFirstRun == True and self.occupancyDetectionStarted == True):
-                (self.yolo, self.classes, self.parkingLots_ODetection) = self.detectionConfigurations()
-                self.occupancyFirstRun = False
+        #self.camera_port = "tobb_etu_main.mp4"
+        self.camera = cv2.VideoCapture(self.camera_port)
+        print("Self camera port : " , self.camera_port)
 
-            if (self.slotFirstRun == True and self.slotDetectionStarted == True):
-                self.parkingslotdetectionConfigurations()
-                self.slotFirstRun = False
+        if (self.run_video == False):
+            self.run_video = True
+            while self.run_video:
 
-            """Parking Slot Mode"""
-            if self.occupancyDetectionStarted == False:
-                if self.slotDetectionStarted == False:
-                    ret, frame = self.camera.read()
+                if (self.occupancyFirstRun == True and self.occupancyDetectionStarted == True):
+                    (self.yolo, self.classes, self.parkingLots_ODetection) = self.detectionConfigurations()
+                    self.occupancyFirstRun = False
+                if (self.slotFirstRun == True and self.slotDetectionStarted == True):
+                    self.parkingslotdetectionConfigurations()
+                    self.slotFirstRun = False
+                """Parking Slot Mode"""
+                if self.occupancyDetectionStarted == False:
+                    if self.slotDetectionStarted == False:
+                        ret, frame = self.camera.read()
 
-                    global currentlyMarked
-                    self.parking_lots = parking_lots
-                    for parking_lot in parking_lots:
-                        parking_lot.draw_parking_lot(frame)
-                        parking_lot.draw_contours(frame)
-                        parking_lot.draw_parking_lot_id(frame)
+                        global currentlyMarked
+                        self.parking_lots = parking_lots
+                        for parking_lot in parking_lots:
+                            parking_lot.draw_parking_lot(frame)
+                            parking_lot.draw_contours(frame)
+                            parking_lot.draw_parking_lot_id(frame)
 
-                    if topLeft_clicked and botRight_clicked and topRight_clicked and botLeft_clicked and not currentlyMarked:
-                        self.autoIncrement = int(self.autoIncrement)
-                        parking_lot = ParkingLot(pt1, pt2, pt3, pt4, str(self.autoLetter) + str(self.autoIncrement), "Ara Otopark", None,
-                                                 from_server=False)
-                        parking_lots.append(parking_lot)
-                        parking_lot.draw_parking_lot(frame)
-                        self.autoIncrement = self.autoIncrement + 1
-                        currentlyMarked = True
+                        if topLeft_clicked and botRight_clicked and topRight_clicked and botLeft_clicked and not currentlyMarked:
+                            self.autoIncrement = int(self.autoIncrement)
+                            parking_lot = ParkingLot(pt1, pt2, pt3, pt4, str(self.autoLetter) + str(self.autoIncrement), "Ara Otopark", None,
+                                                     from_server=False)
+                            parking_lots.append(parking_lot)
+                            parking_lot.draw_parking_lot(frame)
+                            self.autoIncrement = self.autoIncrement + 1
+                            currentlyMarked = True
 
-                    frame = self.rescale_frame(frame)
-                    color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    height, width, _ = color_swapped_image.shape
-                    qt_image = QtGui.QImage(color_swapped_image.data,
-                                            width,
-                                            height,
-                                            color_swapped_image.strides[0],
-                                            QtGui.QImage.Format_RGB888)
-                    self.VideoSignal.emit(qt_image)
-                    time.sleep(1 / fps)
+                        frame = self.rescale_frame(frame)
+                        color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        height, width, _ = color_swapped_image.shape
+                        qt_image = QtGui.QImage(color_swapped_image.data,
+                                                width,
+                                                height,
+                                                color_swapped_image.strides[0],
+                                                QtGui.QImage.Format_RGB888)
+                        self.VideoSignal.emit(qt_image)
+                        time.sleep(1 / fps)
+                    else:
+                        ret, frame = self.camera.read()
+                        frame_expanded = np.expand_dims(frame, axis=0)
+
+                        (boxes, scores, classes, num) = self.sess.run(
+                            [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
+                            feed_dict={self.image_tensor: frame_expanded})
+
+                        vis_util.visualize_boxes_and_labels_on_image_array(
+                            frame,
+                            np.squeeze(boxes),
+                            np.squeeze(classes).astype(np.int32),
+                            np.squeeze(scores),
+                            self.category_index,
+                            use_normalized_coordinates=True,
+                            line_thickness=1,
+                            min_score_thresh=0.50)
+                        frame = self.rescale_frame(frame)
+                        color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        height, width, _ = color_swapped_image.shape
+                        qt_image = QtGui.QImage(color_swapped_image.data,
+                                                width,
+                                                height,
+                                                color_swapped_image.strides[0],
+                                                QtGui.QImage.Format_RGB888)
+                        self.VideoSignal.emit(qt_image)
+                        time.sleep(1 / fps)
                 else:
-
+                    """Occupancy Detection Mode"""
                     ret, frame = self.camera.read()
-                    frame_expanded = np.expand_dims(frame, axis=0)
 
-                    (boxes, scores, classes, num) = self.sess.run(
-                        [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
-                        feed_dict={self.image_tensor: frame_expanded})
+                    # Noise
+                    blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
 
-                    vis_util.visualize_boxes_and_labels_on_image_array(
-                        frame,
-                        np.squeeze(boxes),
-                        np.squeeze(classes).astype(np.int32),
-                        np.squeeze(scores),
-                        self.category_index,
-                        use_normalized_coordinates=True,
-                        line_thickness=1,
-                        min_score_thresh=0.50)
+                    # Minimize data
+                    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+                    pos_sec = self.camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+
+                    for i in range(len(self.parkingLots_ODetection)):
+                        self.parkingLots_ODetection[i].check(pos_sec, gray, API, self.yolo, self.classes, frame)
+                        self.parkingLots_ODetection[i].draw(frame)
                     frame = self.rescale_frame(frame)
                     color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     height, width, _ = color_swapped_image.shape
@@ -254,30 +293,8 @@ class ShowVideo(QtCore.QObject):
                                             QtGui.QImage.Format_RGB888)
                     self.VideoSignal.emit(qt_image)
                     time.sleep(1 / fps)
-            else:
-                """Occupancy Detection Mode"""
-                ret, frame = self.camera.read()
-
-                # Noise
-                blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
-
-                # Minimize data
-                gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-                pos_sec = self.camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
-
-                for i in range(len(self.parkingLots_ODetection)):
-                    self.parkingLots_ODetection[i].check(pos_sec, gray, API, self.yolo, self.classes, frame)
-                    self.parkingLots_ODetection[i].draw(frame)
-                frame = self.rescale_frame(frame)
-                color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                height, width, _ = color_swapped_image.shape
-                qt_image = QtGui.QImage(color_swapped_image.data,
-                                        width,
-                                        height,
-                                        color_swapped_image.strides[0],
-                                        QtGui.QImage.Format_RGB888)
-                self.VideoSignal.emit(qt_image)
-                time.sleep(1 / fps)
+        else:
+            print("Stop")
 
 
     def get_classes(self, file):
