@@ -100,3 +100,26 @@ class SmartCarParkAPI:
   def handleLeaving(self, parkingLotID):
       URL = self.apiEndpoint
       requests.put(url=URL + "/handleLeaving" + "/" + str(parkingLotID))
+
+  def handleLeaving(self, parkingLotID):
+      URL = self.apiEndpoint
+      requests.put(url=URL + "/handleLeaving" + "/" + str(parkingLotID))
+
+  def login(self,username,password):
+      URL = self.apiEndpoint
+      user = {
+        "username" : username,
+        "password" : password,
+
+      }
+      successLogin = False
+      response = requests.post(url=URL + "/user/login", data=user)
+      responseJ= response.json()
+      if 'ApiKey' in responseJ:
+          successLogin = True
+          return successLogin
+      else:
+           print("User name or password is incorrect")
+           successLogin = False
+           return successLogin
+

@@ -19,7 +19,7 @@ from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
 
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox)
 
-
+blur = QtWidgets.QGraphicsBlurEffect(blurRadius=5)
 cameraID = "global"
 parkZoneID = "global"
 parkZoneName = "global"
@@ -628,6 +628,9 @@ class Ui_MainWindow():
     def openVideo(self):
         print("Menu")
 
+    def setChange(self,blur):
+        self.mainW.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect().setEnabled(False))
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -671,7 +674,7 @@ class Ui_MainWindow():
 class LoginForm(QWidget):
     def __init__(self):
         super().__init__()
-        self.manager = None
+
         self.setWindowTitle('Login Form')
         self.setWindowState(Qt.WindowActive)
         self.resize(500, 120)
@@ -692,16 +695,12 @@ class LoginForm(QWidget):
 
         framePassword = QFrame(self)
         framePassword.setFrameShape(QFrame.StyledPanel)
-        framePassword.setFixedWidth(280)
-        framePassword.setFixedHeight(28)
         framePassword.move(60, 250)
 
         self.lineEditPassword = QLineEdit(framePassword)
         self.lineEditPassword.setFrame(False)
         self.lineEditPassword.setEchoMode(QLineEdit.Password)
         self.lineEditPassword.setTextMargins(8, 0, 4, 1)
-        self.lineEditPassword.setFixedWidth(238)
-        self.lineEditPassword.setFixedHeight(26)
         self.lineEditPassword.move(40, 1)
         self.lineEditPassword.setPlaceholderText('Please enter your password')
 
@@ -730,30 +729,33 @@ class LoginForm(QWidget):
         username = self.lineEdit_username.text()
         password =  self.lineEditPassword.text()
 
-        API = self.manager.API
-        val = API.login(username,password)
-        print(val)
-        if self.lineEdit_username.text() == 'Usernmae' and self.lineEditPassword.text() == '000':
-            msg.setText('Success')
-            msg.exec_()
-            self.app.quit()
+        val = globalAPI.login(username,password)
+
+        if val == True :
+            blur = 0
+            self.main.setChange(blur=blur)
+            self.close()
+            self.destroy()
+            #sys.exit(msg.exec_())
         else:
             msg.setText('Incorrect Password')
             msg.exec_()
-
 
 def main():
 
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QMainWindow()
     form = LoginForm()
-    window.show()
     form.show()
+
     getattr(form, "raise")()
     form.activateWindow()
-    window.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect())
+
+    window.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect(blur))
+    #window.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect())
     ui = Ui_MainWindow()
     ui.setupUi(window)
+    form.main = ui
     thread = QtCore.QThread()
     thread.start()
     cameraList = ["tobb_etu_main.mp4", "parking_lot_1.mp4"]
