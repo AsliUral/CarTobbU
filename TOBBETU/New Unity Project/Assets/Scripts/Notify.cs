@@ -11,9 +11,11 @@ public class Notify : MonoBehaviour
     private List<ParkingLots> lots;
     private string title = "Notification Title";
     public string content = "Content";
-    float currentTime;
-    float startTime;
-    float finishTime;
+    private string title2 = "Notification Title";
+    public string content2 = "Content";
+    float currentTime=0f;
+    float startTime=30f;
+    float finishTime=0f;
     public const string cryEmo = "😭";
     public const string sillyEmo = "😜";
     public const string flushedEmo = "😳";
@@ -29,9 +31,16 @@ public class Notify : MonoBehaviour
       NotificationManager.CancelAll();
 
       if(isPause){
+        // zamani 86400
+
         
         DateTime timeToNotify = DateTime.Now.AddMinutes(86400);
         TimeSpan time = timeToNotify - DateTime.Now;
+     
+       // content2=">>>"+MainMenu.num2;
+       // NotificationManager.SendWithAppIcon(time, title2, content2, Color.green, NotificationIcon.Bell);
+        
+
         
       if (System.DateTime.Now.DayOfWeek == System.DayOfWeek.Monday){
           content="Today is tuesday!"+flushedEmo+" How about checking the TOBB ETU paeking lots?";

@@ -48935,6 +48935,7 @@ GameObject:
   - component: {fileID: 1964181620}
   - component: {fileID: 1964181619}
   - component: {fileID: 1964181621}
+  - component: {fileID: 1964181622}
   m_Layer: 0
   m_Name: NotificationManager
   m_TagString: Untagged
@@ -48955,6 +48956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: Notification Content
+  content2: Content
 --- !u!4 &1964181620
 Transform:
   m_ObjectHideFlags: 0
@@ -48979,6 +48981,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d251715f6245df4bb38af0383574a78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1964181622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964181618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a978a3ff27cf0b4e967a59da777ae6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1964556094
