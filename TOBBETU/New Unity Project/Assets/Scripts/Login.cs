@@ -64,4 +64,8 @@ public class Login : MonoBehaviour
     public void backToMenuScene(){
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
+
+      public void SignInWithGoogleScene(){
+        UnityEngine.SceneManagement.SceneManager.LoadScene(4);
+    }
 }

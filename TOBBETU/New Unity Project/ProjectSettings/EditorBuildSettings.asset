@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: dd1c47ef4941c354c9e31f339ab61656
+  - enabled: 1
+    path: Assets/Scenes/signinwithgoogle.unity
+    guid: e27b629f184ca9b478c66ffb80909717
   m_configObjects: {}

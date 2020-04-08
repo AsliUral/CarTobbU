@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "99875753943",
+    "firebase_url": "https://new-unity-project-49fa7.firebaseio.com",
+    "project_id": "new-unity-project-49fa7",
+    "storage_bucket": "new-unity-project-49fa7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99875753943:android:e0342f608e540e13d34592",
+        "android_client_info": {
+          "package_name": "com.tuna.NewUnityProject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99875753943-op5c6rm1vgujlrn5rb2b78rbheu83r8b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7KESJ_aTsAmY51cSXot6ZHaMlT1hpNpo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99875753943-op5c6rm1vgujlrn5rb2b78rbheu83r8b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "99875753943-be2retlpqr4phls1quevs8c6lfiuipe3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tuna.NewUnityProject"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
