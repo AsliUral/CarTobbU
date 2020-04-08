@@ -1,29 +1,48 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class NewBehaviourScript : MonoBehaviour
+public enum LaneOrder
+{
+    firstLane,
+    secondLane,
+    thirdLane,
+    forthLane,
+    fifthLane,
+    sixthLane,
+    seventhLane
+}
+
+
+public class PathFinder : MonoBehaviour
 {
     public Camera cam;
     public NavMeshAgent pathAgent;
     public LineRenderer navigationLine;
     public bool clicked = false;
     public Vector3 initialPos;
-
+    public GameObject pathDescriptor;
+    public float respawnTime;
     public List<Vector3> pathCorners;
 
     // Start is called before the first frame update
     void Start()
     {
+        respawnTime = 0.5f;
         pathCorners = new List<Vector3>();
 
         navigationLine = this.GetComponent<LineRenderer>();
+
         if (navigationLine == null)
         {
+            Debug.Log("Line object created!");
             navigationLine = this.gameObject.AddComponent<LineRenderer>();
-            navigationLine.SetWidth(1.0f, 1.0f);
-            navigationLine.SetColors(Color.yellow, Color.yellow);
+            navigationLine.material.color = Color.blue;
+            navigationLine.startWidth = 0.4f;
+            navigationLine.endWidth = 0.4f;
+            navigationLine.startColor = Color.blue;
+            navigationLine.endColor = Color.blue;
         }
     }
 
@@ -32,29 +51,39 @@ public class NewBehaviourScript : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            clicked = true;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit))
             {
+                clicked = true;
+                Debug.Log("Hit!");
                 Vector3 hitPoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
                 GenerateAgentPath(hitPoint);
-                //pathAgent.SetDestination(hit.point);
-                //hit.transform.gameObject.name
+                DrawLine();
                 MoveTowardParkingSpot(hit.point);
                 GetVoiceNavigation(pathAgent);
-            }
 
+            }
+            else
+            {
+                Debug.Log("Not hit!");
+            }
+        }
+
+        if (clicked)
+        {
+            StartCoroutine(YieldPathDescriptor());
         }
 
     }
 
     public void GenerateAgentPath(Vector3 hitPointVector)
     {
-        
+        Debug.Log("GenerateAgentPath()");
         Vector3 initialAgentPosition = pathAgent.transform.position;
+
         float initialY = initialAgentPosition.y;
         pathCorners.Add(initialAgentPosition);
 
@@ -63,29 +92,47 @@ public class NewBehaviourScript : MonoBehaviour
 
         pathCorners.Add(new Vector3(hitPointVector.x, initialY, initialAgentPosition.z));
         pathCorners.Add(hitPointVector);
-        pathCorners.Add(hitPointVector);
 
+    }
 
+    public void CreatePathDescriptor()
+    {
+        Debug.Log("CreatePathDescriptor()");
+        GameObject go = Instantiate(pathDescriptor) as GameObject;
+        go.transform.position = pathAgent.transform.position;
+    }
+
+    IEnumerator YieldPathDescriptor()
+    {
+        Debug.Log("YieldPathDescriptor()");
+        while (true)
+        {
+            yield return new WaitForSeconds(respawnTime);
+            CreatePathDescriptor();
+        }
     }
 
     public void DrawLine()
     {
-
+        Debug.Log("DrawLine()");
+        navigationLine.positionCount = pathCorners.Count;
+        for (int i = 0; i < pathCorners.Count; i++)
+        {
+            navigationLine.SetPosition(i, pathCorners[i]);
+        }
     }
 
-    public void InstantiateObjetsOnLine()
-    {
-
-    }
 
     public void MoveTowardParkingSpot(Vector3 toVector)
     {
-
+        pathAgent.transform.position += Vector3.Slerp(pathAgent.transform.position, toVector, 0.2f);
     }
 
     public void GetVoiceNavigation(NavMeshAgent agent)
     {
-        
+        print(agent.transform.position);
+        // will return voice navigation by System.Speech;
+        // the key point here is that creating true string to be read by system
     }
 
     public Transform getClosestParkingSpot(Transform[] spots)
