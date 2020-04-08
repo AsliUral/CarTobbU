@@ -28,6 +28,7 @@ from parking_slot_detection.utils import visualization_utils as vis_util
 
 
 rescaleFactor = None
+#upScale = False
 def getPoint(point):
     if point is not None:
         point = point[1:len(point) - 1]
@@ -58,17 +59,6 @@ def get_parking_lots(API):
     print("Return : " , parkingLots)
     return parkingLots, max + 1
 
-
-cameraID = "1"
-parkZoneID = "45"
-parkZoneName = "Main Car Park 45"
-
-apiKey = "ABC"
-API = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
-
-parking_lots, autoIncrement  = get_parking_lots(API)
-autoLetter = 'Q'
-
 COLOR_WHITE = (255, 255, 255)
 
 fps = 25
@@ -87,6 +77,10 @@ def draw_polygon(event):
     if(rescaleFactor):
         x=int(x*100/66)
         y=int(y*100/66)
+
+    #if (upScale == True):
+    #    x = int(x * 66 / 100)
+    #    y = int(y * 66 / 100)
 
     if topLeft_clicked == True and botRight_clicked == True and botLeft_clicked == True and topRight_clicked == True:
         topLeft_clicked = False
@@ -141,22 +135,31 @@ class ShowVideo(QtCore.QObject):
         #self.camera_port = "tobb_etu_main.mp4"
         # camera_port = "parking_lot_1.mp4"
         #self.camera = cv2.VideoCapture(self.camera_port)
+        self.firstRun = True
+        self.cameraID = "1"
+        self.parkZoneID = "45"
+        self.parkZoneName = "Main Car Park 45"
 
+        self.apiKey = "ABC"
+        self.API = smart_car_park_python_api.SmartCarParkAPI(cameraIP=self.cameraID,
+                                                             parkZoneID=self.parkZoneID,
+                                                             apiKey=self.apiKey,
+                                                             parkZoneName=self.parkZoneName)
 
-
-        self.parking_lots = []
-        self.API = API
-        self.parkZoneID = parkZoneID
-        self.parkZoneName = parkZoneName
+        parking_lots, autoIncrement = get_parking_lots(self.API)
+        self.parking_lots = parking_lots
+        self.autoIncrement = autoIncrement
+        self.autoLetter = 'Q'
 
         self.occupancyDetectionStarted = False
         self.occupancyFirstRun = True
 
         self.slotDetectionStarted = False
         self.slotFirstRun = True
-        self.autoIncrement = autoIncrement
-        self.autoLetter = autoLetter
+
         self.run_video = False
+        self.lastFrame = None
+        self.stopped = False
 
     def rescale_frame(self,frame):
         scale_percent_val = 66
@@ -169,7 +172,15 @@ class ShowVideo(QtCore.QObject):
             height = int(frame.shape[0])
             dim = (width, height)
             global rescaleFactor
+            #global upScale
             rescaleFactor=False
+            #upScale = True
+            #width = int(frame.shape[1] * 100 / scale_percent_val)
+            #height = int(frame.shape[0] * 100 / scale_percent_val)
+            width = int(frame.shape[1] * scale_percent_val / 100)
+            height = int(frame.shape[0] * scale_percent_val / 100)
+
+            dim = (width, height)
             return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
         else:
             width = int(frame.shape[1])
@@ -190,19 +201,33 @@ class ShowVideo(QtCore.QObject):
         self.run_video = False
         print("Stop video")
 
-    @QtCore.pyqtSlot()
-    def startVideo(self):
+    def refreshCameraConfigurations(self):
         self.camera_port = 0
         for zone in (self.parkzones):
             if (zone.isSelected == True):
-                self.camera_port = zone.cameraIP
+                self.currentParkZone = zone
+                break
 
-        #self.camera_port = "tobb_etu_main.mp4"
+        self.API = smart_car_park_python_api.SmartCarParkAPI(cameraIP=self.currentParkZone.cameraIP,
+                                                             parkZoneID=self.currentParkZone.parkingZoneID,
+                                                             apiKey=self.apiKey,
+                                                             parkZoneName=self.currentParkZone.parkZoneName)
+        parking_lots, autoIncrement = get_parking_lots(self.API)
+        self.parking_lots = parking_lots
+        self.autoIncrement = autoIncrement
+        self.camera_port = self.currentParkZone.cameraIP
+
+    @QtCore.pyqtSlot()
+    def startVideo(self):
+        self.refreshCameraConfigurations()
         self.camera = cv2.VideoCapture(self.camera_port)
-        print("Self camera port : " , self.camera_port)
-
         if (self.run_video == False):
-            self.run_video = True
+            if (self.stopped == True):
+                self.run_video = False
+                self.occupancyFirstRun = True
+                self.slotFirstRun = True
+            else:
+                self.run_video = True
             while self.run_video:
 
                 if (self.occupancyFirstRun == True and self.occupancyDetectionStarted == True):
@@ -215,19 +240,24 @@ class ShowVideo(QtCore.QObject):
                 if self.occupancyDetectionStarted == False:
                     if self.slotDetectionStarted == False:
                         ret, frame = self.camera.read()
-
+                        if (ret == False):
+                            frame = self.lastFrame
+                        else:
+                            self.lastFrame = frame
                         global currentlyMarked
-                        self.parking_lots = parking_lots
-                        for parking_lot in parking_lots:
+                        for parking_lot in self.parking_lots:
                             parking_lot.draw_parking_lot(frame)
                             parking_lot.draw_contours(frame)
                             parking_lot.draw_parking_lot_id(frame)
 
                         if topLeft_clicked and botRight_clicked and topRight_clicked and botLeft_clicked and not currentlyMarked:
                             self.autoIncrement = int(self.autoIncrement)
-                            parking_lot = ParkingLot(pt1, pt2, pt3, pt4, str(self.autoLetter) + str(self.autoIncrement), "Ara Otopark", None,
+                            parking_lot = ParkingLot(pt1, pt2, pt3, pt4,
+                                                     str(self.autoLetter) + str(self.autoIncrement),
+                                                     self.currentParkZone.parkZoneName,
+                                                     None,
                                                      from_server=False)
-                            parking_lots.append(parking_lot)
+                            self.parking_lots.append(parking_lot)
                             parking_lot.draw_parking_lot(frame)
                             self.autoIncrement = self.autoIncrement + 1
                             currentlyMarked = True
@@ -281,7 +311,7 @@ class ShowVideo(QtCore.QObject):
                     pos_sec = self.camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
 
                     for i in range(len(self.parkingLots_ODetection)):
-                        self.parkingLots_ODetection[i].check(pos_sec, gray, API, self.yolo, self.classes, frame)
+                        self.parkingLots_ODetection[i].check(pos_sec, gray, self.API, self.yolo, self.classes, frame)
                         self.parkingLots_ODetection[i].draw(frame)
                     frame = self.rescale_frame(frame)
                     color_swapped_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -307,7 +337,7 @@ class ShowVideo(QtCore.QObject):
         yolo = YOLO(0.5, 0.4)
         file = '../../parking_lot_detection/data/coco_classes.txt'
         classes = self.get_classes(file)
-        parkingLotsResponse = API.getAllParkingLotsOFParkZone()
+        parkingLotsResponse = self.API.getAllParkingLotsOFParkZone()
         parkingLots_ODetection = generateParkingLots(parkingLotsResponse)
         return(yolo, classes, parkingLots_ODetection)
 
