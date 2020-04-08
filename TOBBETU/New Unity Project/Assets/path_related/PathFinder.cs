@@ -128,6 +128,40 @@ public class PathFinder : MonoBehaviour
         pathAgent.transform.position += Vector3.Slerp(pathAgent.transform.position, toVector, 0.2f);
     }
 
+    public void InitializeSelectedClick()
+    {
+        buttonClicked = true;
+    }
+
+    public void MoveOnSelectedClick()
+    {
+        for(int i = 0; i < pathCorners.Count; i++)
+        {
+            MoveTowardParkingSpot(pathCorners[i]);
+        }
+    }
+
+    public void ResetClickedPath()
+    {
+        buttonClicked = false;
+        buttonResetted = true;
+    }
+
+    public void InitializeShortestClick()
+    {
+
+    }
+
+    public void MoveOnShortestClick()
+    {
+
+    }
+
+    public void ResetShortestPath()
+    {
+
+    }
+
     public void GetVoiceNavigation(NavMeshAgent agent)
     {
         print(agent.transform.position);
