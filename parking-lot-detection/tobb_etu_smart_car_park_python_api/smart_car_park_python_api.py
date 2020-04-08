@@ -1,9 +1,10 @@
 import requests
 
 class SmartCarParkAPI:
-  def __init__(self, cameraID, parkZoneID, apiKey):
-    self.cameraID = cameraID
+  def __init__(self, cameraIP, parkZoneID, apiKey, parkZoneName):
+    self.cameraIP = cameraIP
     self.parkZoneID = parkZoneID
+    self.parkZoneName = parkZoneName
     self.apiEndpoint = "https://smart-car-park-api.appspot.com"
     self.apiKey = apiKey
   def getAllParkingLots(self):
@@ -65,7 +66,7 @@ class SmartCarParkAPI:
       parkingLot_data = {
         "status": parkingLotStatus,
         "parkingLotID": parkingLotID,
-        "parkZoneName": parkZoneName,
+        "parkZoneName": self.parkZoneName,
         "firstPoint": firstPoint,
         "secondPoint": secondPoint,
         "thirdPoint": thirdPoint,
@@ -79,7 +80,7 @@ class SmartCarParkAPI:
       parkingLot_data = {
         "status": parkingLotStatus,
         "parkingLotID": parkingLotID,
-        "parkZoneName": parkZoneName,
+        "parkZoneName": self.parkZoneName,
         "firstPoint": firstPoint,
         "secondPoint": secondPoint,
         "thirdPoint": thirdPoint,

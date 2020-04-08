@@ -25,7 +25,10 @@ parkZoneID = "global"
 parkZoneName = "global"
 
 apiKey = "ABC"
-globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraID, parkZoneID, apiKey)
+globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraIP=cameraID,
+                                                      parkZoneID=parkZoneID,
+                                                      apiKey = apiKey,
+                                                      parkZoneName = parkZoneName)
 
 
 def getParkingZone():
@@ -304,12 +307,19 @@ class Ui_MainWindow():
 
     def parkZoneSelected(self):
         counter = 0
+        noSelectedButton = True
         for button in self.parkZoneButtons:
             if(button.isChecked() == False):
                 self.parkzones[counter].isSelected = True
+                noSelectedButton = False
+                self.manager.stopped = False
             else:
                 self.parkzones[counter].isSelected = False
             counter = counter + 1
+
+        if noSelectedButton == True:
+            self.manager.stopped = True
+            self.manager.run_video = False
 
         self.manager.parkzones = self.parkzones
 
@@ -677,7 +687,7 @@ class LoginForm(QWidget):
 
         self.setWindowTitle('Login Form')
         self.setWindowState(Qt.WindowActive)
-        self.resize(500, 120)
+        #self.resize(500, 120)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
@@ -774,7 +784,6 @@ def main():
         parkZoneButton = QPushButton(parkzone.parkZoneName)
         parkZoneButton.setCheckable(True)
         parkZoneButton.toggle()
-        #parkZoneButton.clicked.connect(ui.parkZoneSelected)
         parkZoneButton.clicked.connect(vid.startVideo)
         ui.parkZoneButtons.append(parkZoneButton)
         ui.dockedWidget.layout().addWidget(parkZoneButton)
