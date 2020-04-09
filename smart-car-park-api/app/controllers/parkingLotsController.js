@@ -204,7 +204,6 @@ exports.get_all_parking_lots_of_parking_zone = function (req, res) {
 
 /* Get Occupied Parking Lots of Parking Zone */
 exports.get_occiped_parking_lots_of_parking_zone = function (req, res) {
-  console.log("Buraya gelmeli");
   var parkZoneID = req.params.parkZoneID;
   ParkingLot.getOccupiedParkingLotsOfParkZone(parkZoneID, function (
     err,

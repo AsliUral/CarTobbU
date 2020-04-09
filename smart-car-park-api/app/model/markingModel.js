@@ -2,23 +2,26 @@
 var sql = require("./dbModel/db.js");
 
 //Marking object constructor
-var Marking = function(marking) {
+var Marking = function (marking) {
   this.personID = marking.personID;
   this.carPlate = marking.carPlate;
   this.parkingLotID = car.parkingLotID;
   this.ParkingTime = car.ParkingTime;
 };
 
-Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
+Marking.handleMarkingEvent = function (apiKey, parkingLotID, result) {
   CarPlate = "";
   ParkingLotID = parkingLotID;
-  sql.query("Select * from user where ApiKey = ? ", apiKey, function(err, res) {
+  sql.query("Select * from user where ApiKey = ? ", apiKey, function (
+    err,
+    res
+  ) {
     if (err) {
       console.log("error: ", err);
       result(err, null);
     } else {
       var personID = res[0].PersonID;
-      sql.query("Select * from car where ApiKey = ? ", apiKey, function(
+      sql.query("Select * from car where ApiKey = ? ", apiKey, function (
         err,
         res1
       ) {
@@ -31,9 +34,9 @@ Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
             PersonID: personID,
             CarPlate: res1[0].CarPlate,
             ParkingLotID: parkingLotID,
-            ApiKey: apiKey
+            ApiKey: apiKey,
           };
-          sql.query("INSERT INTO marking set ?", newMarking, function(
+          sql.query("INSERT INTO marking set ?", newMarking, function (
             err,
             res
           ) {
@@ -41,10 +44,6 @@ Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
               console.log("error: ", err);
               result(err, null);
             } else {
-              console.log("Hey1");
-              console.log(ParkingLotID);
-              console.log("Hey2");
-              console.log(CarPlate);
               var sqlUpdate =
                 "UPDATE car SET CurrentParkingLot = " +
                 "'" +
@@ -54,7 +53,7 @@ Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
                 "'" +
                 CarPlate +
                 "'";
-              sql.query(sqlUpdate, function(err, result) {
+              sql.query(sqlUpdate, function (err, result) {
                 if (err) throw err;
                 console.log(result.affectedRows + " record(s) updated");
               });
@@ -69,16 +68,19 @@ Marking.handleMarkingEvent = function(apiKey, parkingLotID, result) {
   });
 };
 
-Marking.handleDeleteEvent = function(apiKey, parkingLotID, result) {
+Marking.handleDeleteEvent = function (apiKey, parkingLotID, result) {
   CarPlate = "";
   ParkingLotID = parkingLotID;
-  sql.query("Select * from user where ApiKey = ? ", apiKey, function(err, res) {
+  sql.query("Select * from user where ApiKey = ? ", apiKey, function (
+    err,
+    res
+  ) {
     if (err) {
       console.log("error: ", err);
       result(err, null);
     } else {
       var personID = res[0].PersonID;
-      sql.query("Select * from car where ApiKey = ? ", apiKey, function(
+      sql.query("Select * from car where ApiKey = ? ", apiKey, function (
         err,
         res1
       ) {
@@ -89,7 +91,7 @@ Marking.handleDeleteEvent = function(apiKey, parkingLotID, result) {
           ParkingLotID = parkingLotID;
           var sqlDelete =
             "DELETE FROM marking WHERE ApiKey =" + "'" + apiKey + "'";
-          sql.query(sqlDelete, function(err, result) {
+          sql.query(sqlDelete, function (err, result) {
             if (err) throw err;
             console.log("Number of records deleted: " + result.affectedRows);
           });
@@ -105,8 +107,8 @@ Marking.handleDeleteEvent = function(apiKey, parkingLotID, result) {
 };
 
 /* Get All Markings */
-Marking.getAllMarkings = function(result) {
-  sql.query("Select * from marking", function(err, res) {
+Marking.getAllMarkings = function (result) {
+  sql.query("Select * from marking", function (err, res) {
     if (err) {
       console.log("error: ", err);
       result(null, err);
