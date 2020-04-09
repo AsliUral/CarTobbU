@@ -119,6 +119,73 @@ public class PathFinder : MonoBehaviour
             }
 
         }
+        else // TM OTOPARK SECILDI
+        {
+            print("TM SECİLDİ!");
+            Vector3 middleCorner;
+            // end of the path
+            if (152.46f <= hitPointVector.x && hitPointVector.x <= 156.57)
+            {
+                pathCorners.Add(new Vector3(154.86f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(154.86f, initialY, hitPointVector.z));
+            }
+            else if (156.79 <= hitPointVector.x && hitPointVector.x <= 160.25)
+            {
+                pathCorners.Add(new Vector3(158.57f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(158.57f, initialY, hitPointVector.z));
+            }
+            else if (160.47 <= hitPointVector.x && hitPointVector.x <= 163.86)
+            {
+                pathCorners.Add(new Vector3(162.23f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(162.23f, initialY, hitPointVector.z));
+            }
+            else if (164.03 <= hitPointVector.x && hitPointVector.x <= 167.33)
+            {
+                pathCorners.Add(new Vector3(165.5f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(165.5f, initialY, hitPointVector.z));
+            }
+            else if (167.58f <= hitPointVector.x && hitPointVector.x <= 171.02)
+            {
+                pathCorners.Add(new Vector3(169.33f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(169.33f, initialY, hitPointVector.z));
+            }
+            else if (173.45f <= hitPointVector.x && hitPointVector.x <= 176.93f)
+            {
+                pathCorners.Add(new Vector3(175.17f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(175.17f, initialY, hitPointVector.z));
+            }
+            else if (164.03 <= hitPointVector.x && hitPointVector.x <= 167.33)
+            {
+                pathCorners.Add(new Vector3(165.5f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(165.5f, initialY, hitPointVector.z));
+            }
+            else if (177.15f <= hitPointVector.x && hitPointVector.x <= 180.7)
+            {
+                pathCorners.Add(new Vector3(178.97f, initialY, initialAgentPosition.z));
+                pathCorners.Add(new Vector3(178.97f, initialY, hitPointVector.z));
+            }
+            else if (180.9 <= hitPointVector.x && hitPointVector.x <= 184.27)
+            {
+                pathCorners.Add(new Vector3(179.12f, initialY, -51.81f));
+                pathCorners.Add(new Vector3(182.66f, initialY, -51.81f));
+                pathCorners.Add(new Vector3(182.66f, initialY, hitPointVector.z));
+            }
+            else if (184.48 <= hitPointVector.x && hitPointVector.x <= 187.99)
+            {
+                pathCorners.Add(new Vector3(179.12f, initialY, -51.81f));
+                pathCorners.Add(new Vector3(186.28f, initialY, -51.81f));
+                pathCorners.Add(new Vector3(186.28f, initialY, hitPointVector.z));
+                pathCorners.Add(new Vector3(186.28f, initialY, hitPointVector.z));
+            }
+            else
+            {
+                print("Tıkladığınız noktada bir park yeri yok!");
+            }
+
+            //pathCorners.Add(new Vector3(hitPointVector.x, initialY, initialAgentPosition.z));
+        }
+
+        pathCorners.Add(hitPointVector);
 
     }
 
