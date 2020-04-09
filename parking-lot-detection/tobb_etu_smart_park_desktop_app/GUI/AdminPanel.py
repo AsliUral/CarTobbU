@@ -7,12 +7,16 @@ from PyQt5.QtCore import Qt, QSize
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
 from tobb_etu_smart_park_desktop_app.GUI import VideoEditor
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
+from tobb_etu_smart_park_desktop_app.GUI.System import System
 from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer, getPoint
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtGui import QIcon, QPixmap
 import numpy
 import sys
+import threading
+import cv2
 
 from tobb_etu_smart_park_desktop_app.GUI.parking_lot import ParkingLot
 from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
@@ -273,6 +277,11 @@ class Ui_MainWindow():
         self.deleteParkingSlot.triggered.connect(self.deleteSelectedSlots)
         self.toolBar.addAction(self.deleteParkingSlot)
 
+        self.startSystemButton = QtWidgets.QAction(QIcon('./buttonIcons/startSystem.jpg'), "Start System", MainWindow)
+        self.startSystemButton.setStatusTip("Start System")
+        self.startSystemButton.triggered.connect(self.startSystem)
+        self.toolBar.addAction(self.startSystemButton)
+
 
         self.docked = QtWidgets.QDockWidget(MainWindow)
         MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.docked)
@@ -463,6 +472,29 @@ class Ui_MainWindow():
                 # parking_lot.deleted = True
                 self.manager.parking_lots.remove(parking_lot)
                 # self.parkingLots.remove(parking_lot)
+
+    def startSystem(self):
+        (yolo, classes) = self.manager.getOccupancyModelConfg()
+        self.systems = []
+        for zone in self.parkzones:
+            self.systems.append(System(zone))
+        while(True):
+            counter = 0
+            for system in self.systems:
+                if (counter == 1 or counter == 10):
+                    camera = system.camera
+                    frame = system.readFrame()
+                    # Noise
+                    blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
+                    # Minimize data
+                    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+                    pos_sec = camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+
+                    for i in range(len(system.parkingLots_ODetection)):
+                        system.parkingLots_ODetection[i].check(pos_sec, gray, system.API, yolo, classes, frame)
+                        system.parkingLots_ODetection[i].draw(frame)
+                counter = counter + 1
+
 
     def sendServer(self):
         API = self.manager.API
