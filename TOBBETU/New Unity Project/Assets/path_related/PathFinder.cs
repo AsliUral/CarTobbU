@@ -85,13 +85,40 @@ public class PathFinder : MonoBehaviour
         Vector3 initialAgentPosition = pathAgent.transform.position;
 
         float initialY = initialAgentPosition.y;
+        //beginning of the path
         pathCorners.Add(initialAgentPosition);
+        pathCorners.Add(new Vector3(179.2f, initialY, -33.93f));
 
         float xDifference = hitPointVector.x - initialAgentPosition.x;
         float zDifference = hitPointVector.z - initialAgentPosition.z;
 
-        pathCorners.Add(new Vector3(hitPointVector.x, initialY, initialAgentPosition.z));
-        pathCorners.Add(hitPointVector);
+        // YDB OTOPARK SECILDI
+        if (zDifference > 0)
+        {
+            print("YDB SEÇİLDİ");
+            pathCorners.Add(new Vector3(174.59f, initialY, -32.94f));
+            pathCorners.Add(new Vector3(174.59f, initialY, -24.3f));
+
+            if (172.1 <= hitPointVector.x && hitPointVector.x <= 176.19)
+            {
+                pathCorners.Add(new Vector3(174.15f, initialY, hitPointVector.z));
+            }
+            else if (176.44 <= hitPointVector.x && hitPointVector.x <= 180.89)
+            {
+                pathCorners.Add(new Vector3(178.7f, initialY, -22.73f));
+                pathCorners.Add(new Vector3(178.7f, initialY, hitPointVector.z));
+            }
+            else if(180.51 <= hitPointVector.x && hitPointVector.x <= 183.82)
+            {
+                pathCorners.Add(new Vector3(183.28f, initialY, -21.76f));
+                pathCorners.Add(new Vector3(183.28f, initialY, hitPointVector.z));
+            }
+            else
+            {
+                print("Burada park yeri bulunmuyor.");
+            }
+
+        }
 
     }
 
