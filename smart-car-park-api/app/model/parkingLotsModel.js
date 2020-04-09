@@ -2,7 +2,7 @@
 var sql = require("./dbModel/db.js");
 
 //ParkingLot object constructor
-var ParkingLot = function(parkingLot) {
+var ParkingLot = function (parkingLot) {
   this.ParkingLotStatus = parkingLot.status;
   this.ParkingLotID = parkingLot.parkingLotID;
   this.ParkZoneName = parkingLot.parkZoneName;
@@ -13,8 +13,11 @@ var ParkingLot = function(parkingLot) {
 };
 
 /* Create a Parking Lot */
-ParkingLot.createParkingLot = function(newParkingLot, result) {
-  sql.query("INSERT INTO parkinglots set ?", newParkingLot, function(err, res) {
+ParkingLot.createParkingLot = function (newParkingLot, result) {
+  sql.query("INSERT INTO parkinglots set ?", newParkingLot, function (
+    err,
+    res
+  ) {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -26,11 +29,59 @@ ParkingLot.createParkingLot = function(newParkingLot, result) {
 };
 
 /* Update to Occupied */
-ParkingLot.updateToOccuiped = function(parkingLotID, parkingLot, result) {
+ParkingLot.updateToOccuiped = function (parkingLotID, parkingLot, result) {
   sql.query(
     "UPDATE parkinglots SET ParkingLotStatus = ? WHERE ParkingLotID = ?",
     ["Occupied", parkingLotID],
-    function(err, res) {
+    function (err, res) {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+      } else {
+        result(null, res);
+      }
+    }
+  );
+};
+
+/* Update to Selected */
+ParkingLot.updateToSelected = function (parkingLotID, parkingLot, result) {
+  sql.query(
+    "UPDATE parkinglots SET SelectedStatus = ? WHERE ParkingLotID = ?",
+    ["True", parkingLotID],
+    function (err, res) {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+      } else {
+        result(null, res);
+      }
+    }
+  );
+};
+
+/* Update to UnSelected */
+ParkingLot.updateToUnSelected = function (parkingLotID, parkingLot, result) {
+  sql.query(
+    "UPDATE parkinglots SET SelectedStatus = ? WHERE ParkingLotID = ?",
+    ["False", parkingLotID],
+    function (err, res) {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+      } else {
+        result(null, res);
+      }
+    }
+  );
+};
+
+/* Set Api Key by Parking lot ID */
+ParkingLot.updateApiKey = function (apiKey, parkingLotID, result) {
+  sql.query(
+    "UPDATE parkinglots SET ApiKey = ? WHERE ParkingLotID = ?",
+    [apiKey, parkingLotID],
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -42,7 +93,7 @@ ParkingLot.updateToOccuiped = function(parkingLotID, parkingLot, result) {
 };
 
 /* Update to Available */
-ParkingLot.updateById = function(parkingLotID, parkingLot, result) {
+ParkingLot.updateById = function (parkingLotID, parkingLot, result) {
   sql.query(
     "UPDATE parkinglots SET ParkingLotStatus = ?, ParkingLotID = ?, ParkZoneName = ?, FirstPoint = ?, SecondPoint = ?, ThirdPoint = ?, FourthPoint = ? WHERE ParkingLotID = ?",
     [
@@ -53,9 +104,9 @@ ParkingLot.updateById = function(parkingLotID, parkingLot, result) {
       parkingLot.SecondPoint,
       parkingLot.ThirdPoint,
       parkingLot.FourthPoint,
-      parkingLotID
+      parkingLotID,
     ],
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -67,11 +118,11 @@ ParkingLot.updateById = function(parkingLotID, parkingLot, result) {
 };
 
 /* Update to Available */
-ParkingLot.updateToAvailable = function(parkingLotID, parkingLot, result) {
+ParkingLot.updateToAvailable = function (parkingLotID, parkingLot, result) {
   sql.query(
     "UPDATE parkinglots SET ParkingLotStatus = ? WHERE ParkingLotID = ?",
     ["Available", parkingLotID],
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -88,11 +139,11 @@ ParkingLot.updateToAvailable = function(parkingLotID, parkingLot, result) {
 };
 
 /* Get Parking Lot By Parking Lot ID */
-ParkingLot.getParkingLotById = function(parkingLotID, result) {
+ParkingLot.getParkingLotById = function (parkingLotID, result) {
   sql.query(
     "Select * from parkinglots where ParkingLotID = ? ",
     parkingLotID,
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(err, null);
@@ -104,8 +155,8 @@ ParkingLot.getParkingLotById = function(parkingLotID, result) {
 };
 
 /* Delete Parking Lot By Parking Lot ID */
-ParkingLot.updateParkingLotById = function(parkingLotID, result) {
-  sql.query("DELETE FROM parkinglots WHERE id = ?", [parkingLotID], function(
+ParkingLot.updateParkingLotById = function (parkingLotID, result) {
+  sql.query("DELETE FROM parkinglots WHERE id = ?", [parkingLotID], function (
     err,
     res
   ) {
@@ -119,11 +170,11 @@ ParkingLot.updateParkingLotById = function(parkingLotID, result) {
 };
 
 /* Delete Parking Lot By Parking Lot ID */
-ParkingLot.deleteParkingLotById = function(parkingLotID, result) {
+ParkingLot.deleteParkingLotById = function (parkingLotID, result) {
   sql.query(
     "DELETE FROM parkinglots WHERE ParkingLotID = ?",
     [parkingLotID],
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -135,8 +186,8 @@ ParkingLot.deleteParkingLotById = function(parkingLotID, result) {
 };
 
 /* Get All Parking Lots */
-ParkingLot.getAllParkingLots = function(result) {
-  sql.query("Select * from parkinglots", function(err, res) {
+ParkingLot.getAllParkingLots = function (result) {
+  sql.query("Select * from parkinglots", function (err, res) {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -149,11 +200,11 @@ ParkingLot.getAllParkingLots = function(result) {
 };
 
 /* Get All Occupied Parking Lots */
-ParkingLot.getAllOccupiedParkingLots = function(result) {
+ParkingLot.getAllOccupiedParkingLots = function (result) {
   sql.query(
     "Select * from parkinglots where ParkingLotStatus = ? ",
     "Occupied",
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -167,11 +218,11 @@ ParkingLot.getAllOccupiedParkingLots = function(result) {
 };
 
 /* Get All Occupied Parking Lots */
-ParkingLot.getAllAvailableParkingLots = function(result) {
+ParkingLot.getAllAvailableParkingLots = function (result) {
   sql.query(
     "Select * from parkinglots where ParkingLotStatus = ? ",
     "Available",
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -185,11 +236,11 @@ ParkingLot.getAllAvailableParkingLots = function(result) {
 };
 
 /* Get All Out of Service Parking Lots */
-ParkingLot.getAllOutOfServiceParkingLots = function(result) {
+ParkingLot.getAllOutOfServiceParkingLots = function (result) {
   sql.query(
     "Select * from parkinglots where ParkingLotStatus = ? ",
     "OutOfService",
-    function(err, res) {
+    function (err, res) {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -203,11 +254,11 @@ ParkingLot.getAllOutOfServiceParkingLots = function(result) {
 };
 
 /* Get All Parking Lots of Park Zone */
-ParkingLot.getAllParkingLotsOfParkZone = function(parkZoneID, result) {
+ParkingLot.getAllParkingLotsOfParkZone = function (parkZoneID, result) {
   sql.query(
     "Select * from parkzone where ParkingZoneID = ? ",
     parkZoneID,
-    function(err, res) {
+    function (err, res) {
       if (err) {
         result(null, err);
       } else {
@@ -216,7 +267,7 @@ ParkingLot.getAllParkingLotsOfParkZone = function(parkZoneID, result) {
         sql.query(
           "Select * from parkinglots where ParkZoneName = ? ",
           parkZoneName,
-          function(err, res) {
+          function (err, res) {
             if (err) {
               console.log("error: ", err);
               result(null, err);
@@ -233,11 +284,11 @@ ParkingLot.getAllParkingLotsOfParkZone = function(parkZoneID, result) {
 };
 
 /* Get Occupied Parking Lots of Park Zone */
-ParkingLot.getOccupiedParkingLotsOfParkZone = function(parkZoneID, result) {
+ParkingLot.getOccupiedParkingLotsOfParkZone = function (parkZoneID, result) {
   sql.query(
     "Select * from parkzone where ParkingZoneID = ? ",
     parkZoneID,
-    function(err, res) {
+    function (err, res) {
       if (err) {
         result(null, err);
       } else {
@@ -246,7 +297,7 @@ ParkingLot.getOccupiedParkingLotsOfParkZone = function(parkZoneID, result) {
         sql.query(
           'Select * from parkinglots where ParkZoneName = ? and ParkingLotStatus = "Occupied" ',
           parkZoneName,
-          function(err, res) {
+          function (err, res) {
             if (err) {
               console.log("error: ", err);
               result(null, err);
@@ -265,11 +316,11 @@ ParkingLot.getOccupiedParkingLotsOfParkZone = function(parkZoneID, result) {
 };
 
 /* Get Available Parking Lots of Park Zone */
-ParkingLot.getAvailableParkingLotsOfParkZone = function(parkZoneID, result) {
+ParkingLot.getAvailableParkingLotsOfParkZone = function (parkZoneID, result) {
   sql.query(
     "Select * from parkzone where ParkingZoneID = ? ",
     parkZoneID,
-    function(err, res) {
+    function (err, res) {
       if (err) {
         result(null, err);
       } else {
@@ -278,7 +329,7 @@ ParkingLot.getAvailableParkingLotsOfParkZone = function(parkZoneID, result) {
         sql.query(
           'Select * from parkinglots where ParkZoneName = ? and ParkingLotStatus = "Available" ',
           parkZoneName,
-          function(err, res) {
+          function (err, res) {
             if (err) {
               console.log("error: ", err);
               result(null, err);
@@ -298,11 +349,14 @@ ParkingLot.getAvailableParkingLotsOfParkZone = function(parkZoneID, result) {
 };
 
 /* Get Out Of Service Parking Lots of Park Zone */
-ParkingLot.getOutOfServiceParkingLotsOfParkZone = function(parkZoneID, result) {
+ParkingLot.getOutOfServiceParkingLotsOfParkZone = function (
+  parkZoneID,
+  result
+) {
   sql.query(
     "Select * from parkzone where ParkingZoneID = ? ",
     parkZoneID,
-    function(err, res) {
+    function (err, res) {
       if (err) {
         result(null, err);
       } else {
@@ -311,7 +365,7 @@ ParkingLot.getOutOfServiceParkingLotsOfParkZone = function(parkZoneID, result) {
         sql.query(
           'Select * from parkinglots where ParkZoneName = ? and ParkingLotStatus = "OutOfService" ',
           parkZoneName,
-          function(err, res) {
+          function (err, res) {
             if (err) {
               console.log("error: ", err);
               result(null, err);

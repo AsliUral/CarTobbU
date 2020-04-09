@@ -1,4 +1,4 @@
-module.exports = function(app) {
+module.exports = function (app) {
   var parkingLotsController = require("../controllers/parkingLotsController");
 
   /* Handle Parking Event */
@@ -10,6 +10,19 @@ module.exports = function(app) {
   app
     .route("/handleLeaving/:parkingLotID")
     .put(parkingLotsController.handle_leaving);
+
+  /* Select Parking Lot by ID */
+  app
+    .route("/handleSelect/:parkingLotID")
+    .put(parkingLotsController.handle_select);
+
+  /* UnSelect Parking Lot by ID */
+  app
+    .route("/handleUnSelect/:parkingLotID")
+    .put(parkingLotsController.handle_unselect);
+
+  /* Set api key by ID */
+  app.route("/setApiKey/:parkingLotID").put(parkingLotsController.set_api_key);
 
   /* Get All Parking Lots & Create A New Marking Lot */
   app
