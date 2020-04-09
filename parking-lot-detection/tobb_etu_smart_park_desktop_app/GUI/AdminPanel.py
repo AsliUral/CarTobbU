@@ -1,9 +1,11 @@
 import re
 import sys
+import time
 from functools import partial
 
 import PyQt5
-from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox, QFrame
+from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox, QFrame, \
+    QProgressBar, QDialog, QMdiSubWindow
 from PyQt5.QtCore import Qt, QSize, QRegExp
 
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
@@ -25,6 +27,10 @@ from tobb_etu_smart_park_desktop_app.GUI.parking_zone import ParkingZone
 
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox)
 
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import (QApplication, QDialog,
+                             QProgressBar, QPushButton)
+
 blur = QtWidgets.QGraphicsBlurEffect(blurRadius=5)
 cameraID = "global"
 parkZoneID = "global"
@@ -36,8 +42,7 @@ globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraIP=cameraID,
                                                       parkZoneID=parkZoneID,
                                                       apiKey = apiKey,
                                                       parkZoneName = parkZoneName)
-
-
+TIME_LIMIT = 100
 def getParkingZone():
     zones_JSON = globalAPI.getAllParkZones()
     counter = 0
@@ -58,6 +63,7 @@ def getParkingZone():
             ))
             counter += 1
     return parkzones
+
 
 class Ui_MainWindow():
     def setupUi(self, MainWindow):
@@ -476,6 +482,9 @@ class Ui_MainWindow():
                 self.manager.parking_lots.remove(parking_lot)
                 # self.parkingLots.remove(parking_lot)
 
+
+
+
     def startSystem(self):
         (yolo, classes) = self.manager.getOccupancyModelConfg()
         self.systems = []
@@ -718,17 +727,20 @@ class Ui_MainWindow():
 
 class LoginForm(QtWidgets.QWidget):
     switch_window = QtCore.pyqtSignal()
+    switch_window2 = QtCore.pyqtSignal()
 
     def __init__(self):
         super().__init__()
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle('Login Form')
+        self.setWindowTitle('Login To CarTobbU')
         self.setWindowState(Qt.WindowActive)
         self.resize(500, 120)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), Qt.red)
+        self.setPalette(p)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
-
+        self.setWindowFlags(Qt.WindowMinimizeButtonHint  | Qt.WindowStaysOnTopHint)
         self.layout = QGridLayout()
 
         label_name = QLabel("Username",self)
@@ -769,10 +781,20 @@ class LoginForm(QtWidgets.QWidget):
         button_register.clicked.connect(self.register)
         self.layout.addWidget(button_register, 3, 0, 1, 2)
         self.layout.setRowMinimumHeight(2, 75)
+
+        button_forgot = QPushButton('Forgot my password')
+        button_forgot.clicked.connect(self.forgotPassword)
+        self.layout.addWidget(button_forgot, 4, 0, 1, 1)
+        self.layout.setRowMinimumHeight(2, 75)
+
         self.setLayout(self.layout)
+
 
     def register(self):
         self.switch_window.emit()
+
+    def forgotPassword(self):
+        self.switch_window2.emit()
 
 
     def center(self):
@@ -801,18 +823,114 @@ class LoginForm(QtWidgets.QWidget):
             self.layout.addWidget(self.l1, 3, 0, 1, 2)
             self.l1.setStyleSheet("color:red")
 
+
+class ForgotPasswordForm(QtWidgets.QWidget):
+        switch_window2 = QtCore.pyqtSignal()
+
+        def __init__(self):
+            super().__init__()
+            QtWidgets.QWidget.__init__(self)
+            self.setWindowTitle('Get New Password')
+            self.setWindowState(Qt.WindowActive)
+            self.resize(500, 120)
+            self.setFocusPolicy(QtCore.Qt.StrongFocus)
+            self.setWindowFlags(Qt.WindowMinimizeButtonHint  | Qt.WindowStaysOnTopHint)
+            self.center()
+            self.layout = QGridLayout()
+
+            label_name = QLabel("Username", self)
+            self.lineEdit_username = QLineEdit()
+            self.lineEdit_username.setPlaceholderText('Please enter your username')
+            self.layout.addWidget(label_name, 0, 0)
+            self.layout.addWidget(self.lineEdit_username, 0, 1)
+            self.setLayout(self.layout)
+
+            regexEmail = QRegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$')
+            validatorEmail = QtGui.QRegExpValidator(regexEmail, self)
+            email = QLabel("Email", self)
+            self.lineEdit_email = QLineEdit()
+            self.lineEdit_email.setValidator(validatorEmail)
+            self.lineEdit_email.setPlaceholderText('Please enter your email')
+            self.layout.addWidget(email, 4, 0)
+            self.layout.addWidget(self.lineEdit_email, 4, 1)
+
+            self.empty = QLabel()
+            self.empty.setText("")
+
+            self.wrongEmail = QLabel()
+            self.wrongEmail.setText("This is not a valid email address")
+
+            self.emptyEmail = QLabel()
+            self.emptyEmail.setText("Email is not be empty")
+
+            self.l1 = QLabel()
+            self.l1.setText("New password link is sent")
+
+            button_register = QPushButton('Send Change Password Link')
+            button_register.clicked.connect(self.sendPassword)
+            self.layout.addWidget(button_register, 12, 0, 1, 2)
+            self.layout.setRowMinimumHeight(12, 75)
+
+            button_goToLogin = QPushButton('Go To Login')
+            button_goToLogin.clicked.connect(self.ToLogin)
+            self.layout.addWidget(button_goToLogin, 14, 0, 1, 2)
+            self.layout.setRowMinimumHeight(12, 75)
+            self.setLayout(self.layout)
+
+        def sendPassword(self):
+                email = self.lineEdit_email.text()
+                #phone = self.lineEdit_phone_number.text()
+
+                cM = self.checkMail(email)
+
+                if (cM):
+                    globalAPI.forgotPassword(email)
+                    self.layout.addWidget(self.l1, 3, 0, 1, 2)
+                    self.l1.setStyleSheet("color:green")
+
+        def ToLogin(self):
+            self.close()
+            self.destroy()
+            self.switch_window2.emit()
+
+        def checkMail(self, email):
+
+                regexMail = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+
+                if (re.search(regexMail, email)):
+                    self.layout.addWidget(self.empty, 5, 0, 1, 2)
+                    return True
+
+                if (email == ""):
+                    self.layout.addWidget(self.emptyEmail, 5, 0, 1, 2)
+                    self.emptyEmail.setStyleSheet("color:red")
+                    return False
+                else:
+                    self.layout.addWidget(self.wrongEmail, 5, 0, 1, 2)
+                    self.wrongEmail.setStyleSheet("color:red")
+                    return False
+
+        def center(self):
+                frameGm = self.frameGeometry()
+                print(frameGm)
+                screen = PyQt5.QtWidgets.QApplication.desktop().screenNumber(
+                    PyQt5.QtWidgets.QApplication.desktop().cursor().pos())
+                centerPoint = PyQt5.QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+                frameGm.moveCenter(centerPoint)
+                self.move(frameGm.topLeft())
+
 class RegisterForm(QtWidgets.QWidget):
     switch_window = QtCore.pyqtSignal()
     def __init__(self):
         super().__init__()
 
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle('Register Form')
+        self.setWindowTitle('Create A User')
         self.setWindowState(Qt.WindowActive)
         self.resize(500, 120)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowMinimizeButtonHint  | Qt.WindowStaysOnTopHint)
 
         self.layout = QGridLayout()
 
@@ -881,15 +999,18 @@ class RegisterForm(QtWidgets.QWidget):
         self.emptyPassword.setText("Password or Confirm Password is not be empty")
 
         self.notl = QLabel()
-        self.notl.setText("Password must contain atleast one lowercase character")
+        self.notl.setText("Password must contain at least one lowercase character")
         self.notu = QLabel()
-        self.notu.setText("Password must contain atleast one uppercase character")
+        self.notu.setText("Password must contain at least one uppercase character")
         self.notl = QLabel()
-        self.notl.setText("Password must contain atleast one lowercase character")
+        self.notl.setText("Password must contain at least one lowercase character")
         self.notd = QLabel()
-        self.notd.setText("Password must contain atleast one digit character")
+        self.notd.setText("Password must contain at least one digit character")
         self.not8 = QLabel()
-        self.not8.setText("Password must contain atleast 8 characters")
+        self.not8.setText("Password must contain at least 8 characters")
+
+        self.l1 = QLabel()
+        self.l1.setText("Welcome to CarTobbu, Please check email for verification!")
 
 
         labelPasswordCheck = QLabel("Enter Password Again", self)
@@ -1012,11 +1133,15 @@ class RegisterForm(QtWidgets.QWidget):
 
             if val == True :
                 print("basarili")
+                self.layout.addWidget(self.l1,  9, 0, 1, 2)
+                self.l1.setStyleSheet("color:green")
                 #sys.exit(msg.exec_())
             else:
                 print("yanlis")
-                self.layout.addWidget(self.l1, 3, 0, 1, 2)
+                self.layout.addWidget(self.l1,  9, 0, 1, 2)
                 self.l1.setStyleSheet("color:red")
+
+
 
 class Controller:
 
@@ -1026,12 +1151,18 @@ class Controller:
     def show_login(self):
         self.login = LoginForm()
         self.login.switch_window.connect(self.show_main)
+        self.login.switch_window2.connect(self.forgotPassword)
         self.login.show()
-
 
     def show_main(self):
         self.window = RegisterForm()
         self.window.switch_window.connect(self.show_login)
+        self.login.close()
+        self.window.show()
+
+    def forgotPassword(self):
+        self.window = ForgotPasswordForm()
+        self.window.switch_window2.connect(self.show_login)
         self.login.close()
         self.window.show()
 
@@ -1088,14 +1219,17 @@ def main():
     ui.manager = vid
     window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
 
-
     app.setStyleSheet(PyQt5_stylesheets.load_stylesheet_pyqt5(style="style_Dark"))
+
 
     if "--travis" in sys.argv:
         QtCore.QTimer.singleShot(2000, app.exit)
 
     window.showMaximized()
     app.exec_()
+    sys.exit(app.exec_())
+
+
 
 
 if __name__ == "__main__":
