@@ -69,6 +69,9 @@ class Ui_MainWindow():
         self.mainW = MainWindow
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1068, 824)
+        MainWindow.setWindowIcon(QIcon('./buttonIcons/startSystem.jpg'))
+
+        self.tabChanging = False
 
         self.selectedParkingLots = []
         self.occupancyDetectionStarted = False
@@ -481,21 +484,30 @@ class Ui_MainWindow():
         self.systems = []
         for zone in self.parkzones:
             self.systems.append(System(zone))
+        cameraConnectionFailedCounter = 0
+        cameraCount = 2
         while(True):
             counter = 0
+            if (cameraConnectionFailedCounter == cameraCount):
+                break
             for system in self.systems:
                 if (counter == 1 or counter == 10):
                     camera = system.camera
-                    frame = system.readFrame()
-                    # Noise
-                    blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
-                    # Minimize data
-                    gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-                    pos_sec = camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+                    ret, frame = system.readFrame()
+                    if (ret == False):
+                        print(system.parkZone.parkZoneName)
+                        cameraConnectionFailedCounter = cameraConnectionFailedCounter + 1
+                        print("Kamera bitti")
+                    else :
+                        # Noise
+                        blur = cv2.GaussianBlur(frame.copy(), (5, 5), 3)
+                        # Minimize data
+                        gray = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+                        pos_sec = camera.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
 
-                    for i in range(len(system.parkingLots_ODetection)):
-                        system.parkingLots_ODetection[i].check(pos_sec, gray, system.API, yolo, classes, frame)
-                        system.parkingLots_ODetection[i].draw(frame)
+                        for i in range(len(system.parkingLots_ODetection)):
+                            system.parkingLots_ODetection[i].check(pos_sec, gray, system.API, yolo, classes, frame)
+                            system.parkingLots_ODetection[i].draw(frame)
                 counter = counter + 1
 
 
@@ -610,22 +622,30 @@ class Ui_MainWindow():
         newValue = item.text()
         changedColumn = item.column()
         changedRow = item.row()
-        if (item.isSelected() == True and newValue != "" and changedColumn == 0 and self.isduplicated(newValue) == False):
+        if (item.isSelected() == True and newValue != "" and changedColumn == 0 and self.isduplicated(newValue, item) == False):
             self.manager.parking_lots[changedRow].updateID(newValue)
 
 
-    def isduplicated(self, newValue):
+    def isduplicated(self, newValue, item):
         isduplicated = False
-        number = self.getServerParkingLots()
-        for lots in self.severParkinglots:
-            if lots.parkingLotID == newValue:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setText("Error updating duplicate parking lot entry!")
-                msg.setWindowTitle("Error Parking Lots Tab")
-                msg.exec_()
-                isduplicated = True
-        return isduplicated
+        self.getServerParkingLots()
+        if (self.tabChanging == False):
+            # if ( len(self.severParkinglots))
+            for lots in self.severParkinglots:
+                if lots.parkingLotID == newValue:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setText("Error updating duplicate parking lot entry!")
+                    msg.setWindowTitle("Error Parking Lots Tab")
+                    msg.exec_()
+                    isduplicated = True
+                    return True
+            return isduplicated
+        else:
+            return False
+
+
+
 
     def tabChange(self, i):
         self.autoIncrementText.setText(str(self.manager.autoIncrement))
@@ -644,6 +664,7 @@ class Ui_MainWindow():
                 j = j + 1
 
             for parking_lot in self.manager.parking_lots:
+                self.tabChanging = True
                 x1 = parking_lot.points[0][0][0]
                 y1 = parking_lot.points[0][0][1]
 
@@ -667,7 +688,7 @@ class Ui_MainWindow():
                 self.tableWidget.setItem(i, 3, QtWidgets.QTableWidgetItem(thirdPoint))
                 self.tableWidget.setItem(i, 4, QtWidgets.QTableWidgetItem(fourthPoint))
                 self.tableWidget.setItem(i, 5, QtWidgets.QTableWidgetItem(parking_lot.parkingZone))
-
+                self.tabChanging = False
                 i = i + 1
 
     def openVideo(self):
@@ -727,7 +748,8 @@ class LoginForm(QtWidgets.QWidget):
         self.resize(500, 120)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint )
+
 
         self.layout = QGridLayout()
 
@@ -741,14 +763,14 @@ class LoginForm(QtWidgets.QWidget):
         labelPassword.move(60, 224)
 
         framePassword = QFrame(self)
-        framePassword.setFrameShape(QFrame.StyledPanel)
-        framePassword.move(60, 250)
+        #framePassword.setFrameShape(QFrame.StyledPanel)
+        #framePassword.move(60, 250)
 
         self.lineEditPassword = QLineEdit(framePassword)
         self.lineEditPassword.setFrame(False)
         self.lineEditPassword.setEchoMode(QLineEdit.Password)
-        self.lineEditPassword.setTextMargins(8, 0, 4, 1)
-        self.lineEditPassword.move(40, 1)
+        #self.lineEditPassword.setTextMargins(8, 0, 4, 1)
+        #self.lineEditPassword.move(40, 1)
         self.lineEditPassword.setPlaceholderText('Please enter your password')
 
 
@@ -850,11 +872,11 @@ class RegisterForm(QtWidgets.QWidget):
         self.layout.addWidget(self.lineEdit_phone_number, 6, 1)
 
         labelPassword = QLabel("Password", self)
-        labelPassword.move(60, 224)
+        #labelPassword.move(60, 224)
 
         framePassword = QFrame(self)
-        framePassword.setFrameShape(QFrame.StyledPanel)
-        framePassword.move(60, 250)
+        #framePassword.setFrameShape(QFrame.StyledPanel)
+        #framePassword.move(60, 250)
 
         self.lineEditPassword = QLineEdit(framePassword)
         self.lineEditPassword.setFrame(False)
@@ -893,11 +915,11 @@ class RegisterForm(QtWidgets.QWidget):
 
 
         labelPasswordCheck = QLabel("Enter Password Again", self)
-        labelPasswordCheck.move(60, 224)
+        #labelPasswordCheck.move(60, 224)
 
         framePasswordCheck = QFrame(self)
-        framePasswordCheck.setFrameShape(QFrame.StyledPanel)
-        framePasswordCheck.move(60, 250)
+        #framePasswordCheck.setFrameShape(QFrame.StyledPanel)
+        #framePasswordCheck.move(60, 250)
 
         self.lineEditPasswordCheck = QLineEdit(framePasswordCheck)
         self.lineEditPasswordCheck.setFrame(False)
@@ -1011,10 +1033,9 @@ class RegisterForm(QtWidgets.QWidget):
             val = globalAPI.register(username,fullname,password,email,phone)
 
             if val == True :
-                print("basarili")
+                temp = 1
                 #sys.exit(msg.exec_())
             else:
-                print("yanlis")
                 self.layout.addWidget(self.l1, 3, 0, 1, 2)
                 self.l1.setStyleSheet("color:red")
 
@@ -1086,7 +1107,7 @@ def main():
 
     ui.VideoPlayer.addWidget(videoViewer)
     ui.manager = vid
-    window.setWindowTitle("Tobb ETU Smart Car Park Admin Panel")
+    window.setWindowTitle("Tobb ETU Smart Car Park Admin Application")
 
 
     app.setStyleSheet(PyQt5_stylesheets.load_stylesheet_pyqt5(style="style_Dark"))

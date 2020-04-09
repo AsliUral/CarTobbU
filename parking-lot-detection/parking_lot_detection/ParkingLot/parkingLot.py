@@ -21,6 +21,7 @@ class ParkingLot:
     self.try_count = 0
     self.parking_spot_line_detected = False
     self.current_try = 0
+    self.parking_spot_line_detected_count = 0
 
     self.pre_check()
     self.set_place_points([firstPoint, secondPoint, thirdPoint, fourthPoint])
@@ -150,7 +151,8 @@ class ParkingLot:
     return car_coordinates
 
   def check(self, pos_sec, gray, API, yolo, classes, frame):
-
+    #print("Bu park lot tespit ediliyor")
+    #print(self.parkingLotID)
     status = self.get_status(gray)
 
     if self.sec is not None and (self.status == status):
@@ -158,7 +160,9 @@ class ParkingLot:
 
     if self.sec is not None and (self.status != status):
       if pos_sec - self.sec >= 1:
+
         if (status == "Available"):
+          car_coordinates = []
           car_coordinates = self.detect_image(frame, yolo, classes)
           yolo_status = self.get_yolo_status(gray, car_coordinates)
           status = yolo_status
@@ -167,6 +171,10 @@ class ParkingLot:
             print("Handle Leaving : ", self.parkingLotID)
 
         else:
+          if(self.parking_spot_line_detected_count == 6):
+            self.parking_spot_line_detected = False
+          if (self.parking_spot_line_detected == True):
+            self.parking_spot_line_detected_count = self.parking_spot_line_detected_count + 1
           if self.parking_spot_line_detected == False :
             car_coordinates = self.detect_image(frame, yolo, classes)
             yolo_status = self.get_yolo_status(gray, car_coordinates)

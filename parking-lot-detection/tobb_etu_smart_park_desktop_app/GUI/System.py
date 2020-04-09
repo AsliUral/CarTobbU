@@ -10,6 +10,7 @@ class System:
     self.parkZone = parkZone
     self.API = None
     self.apiKey = "ABC"
+    self.cameraConnectionClosed = False
     self.camera_port = parkZone.cameraIP
     self.camera = cv2.VideoCapture(parkZone.cameraIP)
     self.systemStarted = False
@@ -48,7 +49,7 @@ class System:
 
   def readFrame(self):
       ret, frame = self.camera.read()
-      return frame
+      return ret, frame
 
   def startSystem(self):
       print("Heyo")
