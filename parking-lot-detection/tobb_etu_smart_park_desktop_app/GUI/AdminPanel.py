@@ -1,8 +1,10 @@
+import re
 import sys
+from functools import partial
 
 import PyQt5
 from PyQt5.QtWidgets import QListWidget, QVBoxLayout, QPushButton, QDockWidget, QWidget, QMessageBox, QFrame
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QRegExp
 
 from tobb_etu_smart_car_park_python_api import smart_car_park_python_api
 from tobb_etu_smart_park_desktop_app.GUI import VideoEditor
@@ -12,7 +14,7 @@ from tobb_etu_smart_park_desktop_app.GUI import PyQt5_stylesheets
 from tobb_etu_smart_park_desktop_app.GUI.System import System
 from tobb_etu_smart_park_desktop_app.GUI.VideoEditor import ShowVideo, ImageViewer, getPoint
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QRegExpValidator
 import numpy
 import sys
 import threading
@@ -801,9 +803,9 @@ class LoginForm(QtWidgets.QWidget):
 
 class RegisterForm(QtWidgets.QWidget):
     switch_window = QtCore.pyqtSignal()
-
     def __init__(self):
         super().__init__()
+
         QtWidgets.QWidget.__init__(self)
         self.setWindowTitle('Register Form')
         self.setWindowState(Qt.WindowActive)
@@ -826,19 +828,27 @@ class RegisterForm(QtWidgets.QWidget):
         self.layout.addWidget(label_name_full, 2, 0)
         self.layout.addWidget(self.lineEdit_username_full, 2, 1)
 
-        """
+        regexEmail = QRegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$')
+        validatorEmail = QtGui.QRegExpValidator(regexEmail, self)
         email = QLabel("Email", self)
         self.lineEdit_email = QLineEdit()
+        self.lineEdit_email.setValidator(validatorEmail)
         self.lineEdit_email.setPlaceholderText('Please enter your email')
         self.layout.addWidget(email, 4, 0)
         self.layout.addWidget(self.lineEdit_email, 4, 1)
 
+        self.wrongEmail = QLabel()
+        self.wrongEmail.setText("This is not a valid email address")
+
+        self.emptyEmail = QLabel()
+        self.emptyEmail.setText("Email is not be empty")
+
         phone_number = QLabel("PhoneNumber", self)
         self.lineEdit_phone_number = QLineEdit()
         self.lineEdit_phone_number.setPlaceholderText('Please enter your phone number')
-        self.layout.addWidget(phone_number, 8, 0)
-        self.layout.addWidget(self.lineEdit_phone_number, 8, 1)
-        """
+        self.layout.addWidget(phone_number, 6, 0)
+        self.layout.addWidget(self.lineEdit_phone_number, 6, 1)
+
         labelPassword = QLabel("Password", self)
         labelPassword.move(60, 224)
 
@@ -854,19 +864,122 @@ class RegisterForm(QtWidgets.QWidget):
         self.lineEditPassword.setPlaceholderText('Please enter your password')
 
         self.layout.addWidget(labelPassword)
-        self.layout.addWidget(self.lineEditPassword, 3, 1)
+        self.layout.addWidget(self.lineEditPassword)
+
+        self.weakPassword = QLabel()
+        self.weakPassword.setText("Your password is not strong enough.")
+        self.empty = QLabel()
+        self.empty.setText("")
+
+        self.solved = QLabel()
+        self.solved.setText("")
+
+        self.notSame = QLabel()
+        self.notSame.setText("Your Password and Confirm Password does not match.")
+
+        self.emptyPassword = QLabel()
+        self.emptyPassword.setText("Password or Confirm Password is not be empty")
+
+        self.notl = QLabel()
+        self.notl.setText("Password must contain atleast one lowercase character")
+        self.notu = QLabel()
+        self.notu.setText("Password must contain atleast one uppercase character")
+        self.notl = QLabel()
+        self.notl.setText("Password must contain atleast one lowercase character")
+        self.notd = QLabel()
+        self.notd.setText("Password must contain atleast one digit character")
+        self.not8 = QLabel()
+        self.not8.setText("Password must contain atleast 8 characters")
+
+
+        labelPasswordCheck = QLabel("Enter Password Again", self)
+        labelPasswordCheck.move(60, 224)
+
+        framePasswordCheck = QFrame(self)
+        framePasswordCheck.setFrameShape(QFrame.StyledPanel)
+        framePasswordCheck.move(60, 250)
+
+        self.lineEditPasswordCheck = QLineEdit(framePasswordCheck)
+        self.lineEditPasswordCheck.setFrame(False)
+        self.lineEditPasswordCheck.setEchoMode(QLineEdit.Password)
+        self.lineEditPasswordCheck.setTextMargins(8, 0, 4, 1)
+        self.lineEditPasswordCheck.move(40, 1)
+        self.lineEditPasswordCheck.setPlaceholderText('Please enter your password again')
+
+        self.layout.addWidget(labelPasswordCheck)
+        self.layout.addWidget(self.lineEditPasswordCheck)
 
         button_register = QPushButton('Register')
         button_register.clicked.connect(self.register_function)
         self.layout.addWidget(button_register, 12, 0, 1, 2)
         self.layout.setRowMinimumHeight(12, 75)
 
-
-        button_register = QPushButton('Back To Login')
-        button_register.clicked.connect(self.login)
-        self.layout.addWidget(button_register, 14, 0, 1, 2)
+        button_login = QPushButton('Back To Login')
+        button_login.clicked.connect(self.login)
+        self.layout.addWidget(button_login, 14, 0, 1, 2)
         self.layout.setRowMinimumHeight(14, 75)
+
         self.setLayout(self.layout)
+
+    def checkMail(self,email):
+
+        regexMail = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+
+        if (re.search(regexMail, email)):
+            self.layout.addWidget(self.empty, 5, 0, 1, 2)
+            return True
+
+        if (email == ""):
+            self.layout.addWidget(self.emptyEmail, 5, 0, 1, 2)
+            self.emptyEmail.setStyleSheet("color:red")
+            return False
+        else:
+            self.layout.addWidget(self.wrongEmail, 5, 0, 1, 2)
+            self.wrongEmail.setStyleSheet("color:red")
+            return False
+
+    def checkPassword(self,password,checkPassword):
+
+        regexPassword = '[A-Za-z0-9@#$%^&+=*?!]{8,}'
+        charRegex = re.compile(r'(\w{8,})')  # Check if password has atleast 8 characters
+        lowerRegex = re.compile(r'[a-z]+')  # Check if at least one lowercase letter
+        upperRegex = re.compile(r'[A-Z]+')  # Check if atleast one upper case letter
+        digitRegex = re.compile(r'[0-9]+')  # Check if at least one digit.
+
+        if (password != checkPassword):
+            self.layout.addWidget(self.notSame, 9, 0, 1, 2)
+            self.notSame.setStyleSheet("color:red")
+            return False
+        if (password == "" or checkPassword==""):
+            self.layout.addWidget(self.emptyPassword, 9, 0, 1, 2)
+            self.emptyPassword.setStyleSheet("color:red")
+            return False
+        if charRegex.findall(
+                password) == []:
+            self.layout.addWidget(self.not8, 9, 0, 1, 2)
+            self.not8.setStyleSheet("color:red")
+            return False
+        elif lowerRegex.findall(
+                password) == []:
+            self.layout.addWidget(self.notl, 9, 0, 1, 2)
+            self.notl.setStyleSheet("color:red")
+            return False
+        elif upperRegex.findall(
+                password) == []:
+            self.layout.addWidget(self.notu, 9, 0, 1, 2)
+            self.notu.setStyleSheet("color:red")
+            return False
+
+        elif digitRegex.findall(
+                password) == []:
+            self.layout.addWidget(self.notd, 9, 0, 1, 2)
+            self.notd.setStyleSheet("color:red")
+            return False
+
+        else:
+            self.layout.addWidget(self.solved, 9, 0, 1, 2)
+            return True
+
 
     def login(self):
         self.close()
@@ -886,18 +999,24 @@ class RegisterForm(QtWidgets.QWidget):
 
         username = self.lineEdit_username.text()
         password =  self.lineEditPassword.text()
+        checkPassword = self.lineEditPasswordCheck.text()
         fullname =  self.lineEdit_username_full.text()
+        email = self.lineEdit_email.text()
+        phone = self.lineEdit_phone_number.text()
 
+        cM = self.checkMail(email)
+        cP = self.checkPassword(password,checkPassword)
 
-        val = globalAPI.register(username,fullname,password)
+        if(cM and cP):
+            val = globalAPI.register(username,fullname,password,email,phone)
 
-        if val == True :
-            print("basarili")
-            #sys.exit(msg.exec_())
-        else:
-            self.layout.addWidget(self.l1, 3, 0, 1, 2)
-            self.l1.setStyleSheet("color:red")
-
+            if val == True :
+                print("basarili")
+                #sys.exit(msg.exec_())
+            else:
+                print("yanlis")
+                self.layout.addWidget(self.l1, 3, 0, 1, 2)
+                self.l1.setStyleSheet("color:red")
 
 class Controller:
 
