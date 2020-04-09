@@ -18,6 +18,7 @@ var User = function (user) {
   this.allowedCarParks = user.allowedCarParks;
   this.personIsDisabled = user.personIsDisabled;
   this.LoginCounter = user.LoginCounter;
+  this.Activated = user.Activated;
   this.Email = user.Email;
   this.PhoneNumber = user.PhoneNumber;
 };
@@ -68,6 +69,36 @@ User.createUser = function (user, result) {
       result(null, err);
     } else {
       console.log(res.insertId);
+      console.log("Debug activation : " + user.Email);
+
+      var nodemailer = require("nodemailer");
+
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "samaritancartobbu@gmail.com",
+          pass: "Samaritan123456",
+        },
+      });
+
+      var mailOptions = {
+        from: "samaritancartobbu@gmail.com",
+        to: user.Email,
+        subject: "Activate your account!",
+        text:
+          "Please activate your account with following link  :" +
+          "https://smart-car-park-api.appspot.com/activate/" +
+          user.Email,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+
       result(null, res.insertId);
     }
   });
@@ -131,6 +162,67 @@ User.updateUser = function (apiKey, updatedUser, result) {
     }
   );
 };
+
+User.activateUser = function (Email, result) {
+  sql.query(
+    "UPDATE user SET Activated = ? WHERE Email = ?",
+    ["True", Email],
+    function (err, res) {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+      } else {
+        res = { message: "Welcome to Samaritan!" };
+        result(null, res);
+      }
+    }
+  );
+};
+
+User.googleSignIn = function (user, result) {
+  sql.query("Select * from user where Email = ? ", user.Email, function (
+    err,
+    res
+  ) {
+    if (err) {
+      console.log("error: ", err);
+    } else {
+      console.log("Debug : " + res.length);
+      if (res.length == 1) {
+        user.ApiKey = res[0].ApiKey;
+        result(null, user);
+      } else {
+        var randomlyPassword = "";
+        var characters =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var charactersLength = characters.length;
+        for (var i = 0; i < 11; i++) {
+          randomlyPassword += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+          );
+        }
+        user.apiKey = randomlyPassword;
+        user.hash = randomlyPassword;
+        user.salt = randomlyPassword;
+
+        user.LoginCounter = 0;
+        delete user["password"];
+        sql.query("INSERT INTO user set ?", user, function (err, res) {
+          if (err) {
+            console.log("error: ", err);
+            result(null, err);
+          } else {
+            console.log(res.insertId);
+            delete user["hash"];
+            delete user["salt"];
+            result(null, user);
+          }
+        });
+      }
+    }
+  });
+};
+
 User.loginUser = function (user, result) {
   sql.query("Select * from user where Username = ? ", user.username, function (
     err,
@@ -145,27 +237,32 @@ User.loginUser = function (user, result) {
           if (res.hasOwnProperty(key)) {
             var { salt, passwordHash } = verify(user.password, res[key].Salt);
             if (passwordHash === res[key].Hash) {
-              person = res[0];
-              sql.query(
-                "UPDATE user SET LoginCounter = ? WHERE ApiKey = ?",
-                ["0", person.ApiKey],
-                function (err, res) {
-                  if (err) {
-                    console.log("error: ", err);
-                    //result(null, err);
-                  } else {
-                    //result(null, res);
+              if (res[key].Activated == "True") {
+                person = res[0];
+                sql.query(
+                  "UPDATE user SET LoginCounter = ? WHERE ApiKey = ?",
+                  ["0", person.ApiKey],
+                  function (err, res) {
+                    if (err) {
+                      console.log("error: ", err);
+                      //result(null, err);
+                    } else {
+                      //result(null, res);
+                    }
                   }
-                }
-              );
+                );
 
-              delete res[key]["password"];
-              delete res[key]["Salt"];
-              delete res[key]["Hash"];
-              delete res[key]["PersonID"];
-              res[key]["LoginCounter"] = "0";
-              result(null, res[key]);
-              break;
+                delete res[key]["password"];
+                delete res[key]["Salt"];
+                delete res[key]["Hash"];
+                delete res[key]["PersonID"];
+                res[key]["LoginCounter"] = "0";
+                result(null, res[key]);
+                break;
+              } else {
+                responseMessage = { Message: "Please activate your account" };
+                result(null, responseMessage);
+              }
             } else {
               person = res[0];
               currentLoginCounter = parseInt(person.LoginCounter, 10);

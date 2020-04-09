@@ -24,6 +24,11 @@ module.exports = function (app) {
   /* Set api key by ID */
   app.route("/setApiKey/:parkingLotID").put(parkingLotsController.set_api_key);
 
+  /* Set Select Time by ID */
+  app
+    .route("/setSelectTime/:parkingLotID")
+    .put(parkingLotsController.set_select_time);
+
   /* Get All Parking Lots & Create A New Marking Lot */
   app
     .route("/parkingLots")

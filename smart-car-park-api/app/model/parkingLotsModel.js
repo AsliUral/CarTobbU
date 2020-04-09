@@ -92,6 +92,22 @@ ParkingLot.updateApiKey = function (apiKey, parkingLotID, result) {
   );
 };
 
+/* Set Api Key by Parking lot ID */
+ParkingLot.updateSelectTime = function (selectTime, parkingLotID, result) {
+  sql.query(
+    "UPDATE parkinglots SET SelectTime = ? WHERE ParkingLotID = ?",
+    [selectTime, parkingLotID],
+    function (err, res) {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+      } else {
+        result(null, res);
+      }
+    }
+  );
+};
+
 /* Update to Available */
 ParkingLot.updateById = function (parkingLotID, parkingLot, result) {
   sql.query(

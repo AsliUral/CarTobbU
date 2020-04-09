@@ -62,6 +62,19 @@ exports.set_api_key = function (req, res) {
   });
 };
 
+/* Handle Set Select Time Event */
+exports.set_select_time = function (req, res) {
+  console.log("Debug : ", req.body.SelectTime);
+  var selectTime = req.body.SelectTime;
+  ParkingLot.updateSelectTime(selectTime, req.params.parkingLotID, function (
+    err,
+    parkinglot
+  ) {
+    if (err) res.send(err);
+    res.json(parkinglot);
+  });
+};
+
 /* Create a Parking Lot */
 exports.create_a_parkinglot = function (req, res) {
   var new_parkinglot = new ParkingLot(req.body);

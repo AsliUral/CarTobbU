@@ -13,8 +13,14 @@ module.exports = function (app) {
   /* Login */
   app.route("/user/login").post(userController.login_user);
 
+  /* Google Sign In */
+  app.route("/user/googleSignIn/:Email").post(userController.signin_google);
+
   /* Update user settings */
   app.route("/user/updateUser/:apiKey").put(userController.update_user);
+
+  /* Activate user */
+  app.route("/activate/:Email").get(userController.activate_user);
 
   /* Get User */
   app.route("/user/:apiKey").get(userController.get_user);
