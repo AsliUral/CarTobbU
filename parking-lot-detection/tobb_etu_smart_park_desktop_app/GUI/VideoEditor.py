@@ -77,10 +77,11 @@ def draw_polygon(event):
     if(rescaleFactor):
         x=int(x*100/66)
         y=int(y*100/66)
-
-    #if (upScale == True):
-    #    x = int(x * 66 / 100)
-    #    y = int(y * 66 / 100)
+    """
+    if (upScale == True):
+        x = int(x * 66 / 100)
+        y = int(y * 66 / 100)
+    """
 
     if topLeft_clicked == True and botRight_clicked == True and botLeft_clicked == True and topRight_clicked == True:
         topLeft_clicked = False
@@ -332,6 +333,12 @@ class ShowVideo(QtCore.QObject):
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
         return class_names
+
+    def getOccupancyModelConfg(self):
+        yolo = YOLO(0.5, 0.4)
+        file = '../../parking_lot_detection/data/coco_classes.txt'
+        classes = self.get_classes(file)
+        return (yolo, classes)
 
     def detectionConfigurations(self):
         yolo = YOLO(0.5, 0.4)
