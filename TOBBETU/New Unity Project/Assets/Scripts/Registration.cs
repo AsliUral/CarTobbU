@@ -15,12 +15,17 @@ public class Registration : MonoBehaviour
         public string studentID;
         public string allowedCarParks;
         public string personIsDisabled;
+        public string PhoneNumber;
+        public string Email;
     }
     public InputField nameField;
     public InputField passwordField;
     public InputField fullNameField;
     public Transform userDropdown;
     public InputField studentIDField;
+
+    public InputField PhoneNumberField;
+    public InputField EmailField;
     public Button submitButton;
 
     
@@ -52,6 +57,8 @@ public class Registration : MonoBehaviour
         thisUser.studentID = studentIDField.text;
         thisUser.allowedCarParks = "Main Car Park, Foreign Languages Car Park";
         thisUser.personIsDisabled = "no";
+        thisUser.PhoneNumber = PhoneNumberField.text;
+        thisUser.Email = EmailField.text;
         string json = JsonUtility.ToJson(thisUser);
         Debug.Log(json);
 

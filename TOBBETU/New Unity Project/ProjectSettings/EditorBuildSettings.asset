@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/signinwithgoogle.unity
     guid: e27b629f184ca9b478c66ffb80909717
+  - enabled: 1
+    path: Assets/Scenes/forgotmypassword.unity
+    guid: 93df40941ddfd644d99d816bbc5050a9
   m_configObjects: {}

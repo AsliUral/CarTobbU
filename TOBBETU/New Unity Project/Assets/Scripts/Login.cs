@@ -17,6 +17,8 @@ public class Login : MonoBehaviour
     public Button submitButton;
     //public String apiKey{get; private set;}
     public static string apiKey;
+
+    public Text message;
     public void CallLogin(){
         StartCoroutine(LoginUser());
     }
@@ -38,6 +40,14 @@ public class Login : MonoBehaviour
         if (uwr.isNetworkError){
             Debug.Log("giderken hata oldu "+uwr.error);
         }
+        
+        //user needs to activate
+        if(uwr.downloadHandler.text.Contains("Message")){
+            Debug.Log("This user have not activated their account yet.");
+            message.GetComponent<Text>().text = "Please activate your account.";
+        }
+
+        //user activated and can continue with parking scene
         else{
             Debug.Log(uwr.downloadHandler.text);
             string str = uwr.downloadHandler.text;
@@ -47,15 +57,11 @@ public class Login : MonoBehaviour
             Debug.Log("apikeeeey "+apiKey);
             UnityEngine.SceneManagement.SceneManager.LoadScene(3);
         }
- 
-
     }
-
 
     public void VerifyInputs(){
         submitButton.interactable = (nameField.text.Length>=8 && passwordField.text.Length>=8);
     }
-
 
     public string getApiKey(){
         return apiKey;
@@ -65,7 +71,11 @@ public class Login : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
-      public void SignInWithGoogleScene(){
+    public void SignInWithGoogleScene(){
         UnityEngine.SceneManagement.SceneManager.LoadScene(4);
+    }
+
+    public void forgotPasswordScene(){
+        UnityEngine.SceneManagement.SceneManager.LoadScene(5);
     }
 }

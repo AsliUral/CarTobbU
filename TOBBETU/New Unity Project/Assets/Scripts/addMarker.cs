@@ -2,12 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using System.Collections;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
 
 public class AddMarker : MonoBehaviour
 {

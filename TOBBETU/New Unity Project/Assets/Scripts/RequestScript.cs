@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 public class RequestScript : MonoBehaviour{
 ParkingLots[] parkingLotsArray;
 Cars[] carsArray;
@@ -11,8 +12,11 @@ public static int numAvailable;
 public GameObject car;
 private List<GameObject> carList;
 
+public Text txt;
+
     public void Start(){
-       
+        
+        txt.GetComponent<Text>().text = GoogleSignInDemo.userEmail; 
         StartCoroutine(coroutine());
     }
     

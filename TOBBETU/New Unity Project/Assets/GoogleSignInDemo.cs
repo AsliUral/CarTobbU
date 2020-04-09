@@ -14,6 +14,7 @@ public class GoogleSignInDemo : MonoBehaviour
     public Text infotext;
     public string webClientId = "<client id>";
     
+    public static string userEmail;
     private FirebaseAuth auth;
     private GoogleSignInConfiguration configuration;
 
@@ -46,6 +47,7 @@ public class GoogleSignInDemo : MonoBehaviour
         GoogleSignIn.Configuration = configuration;
         GoogleSignIn.Configuration.UseGameSignIn = false;
         GoogleSignIn.Configuration.RequestIdToken = true;
+        GoogleSignIn.Configuration.RequestEmail = true;
         AddToInformation("calling sign in");
 
         GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnAuthenticationFinished);
@@ -88,6 +90,7 @@ public class GoogleSignInDemo : MonoBehaviour
         else{
             AddToInformation("Welcome: "+task.Result.DisplayName + "!");
             AddToInformation("Email= "+ task.Result.Email);
+            Debug.Log("email: "+ task.Result.Email);
             AddToInformation("Google ID Token = " + task.Result.IdToken);
             AddToInformation("Email= "+task.Result.Email);
             SignInWithGoogleOnFirebase(task.Result.IdToken); 
@@ -109,6 +112,8 @@ public class GoogleSignInDemo : MonoBehaviour
             }
             else{
                     AddToInformation("sign in successful");
+                    Debug.Log(task.Result.Email);
+                    userEmail = task.Result.Email;
                     UnityEngine.SceneManagement.SceneManager.LoadScene(3);
             }
             
