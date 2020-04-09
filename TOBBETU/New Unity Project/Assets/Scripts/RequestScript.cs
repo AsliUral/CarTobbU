@@ -16,7 +16,8 @@ public Text txt;
 
     public void Start(){
         
-        txt.GetComponent<Text>().text = GoogleSignInDemo.userEmail; 
+        txt.GetComponent<Text>().text = GoogleSignInDemo.userEmail;
+         
         StartCoroutine(coroutine());
     }
     

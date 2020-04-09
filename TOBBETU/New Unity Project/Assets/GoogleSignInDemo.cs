@@ -8,6 +8,7 @@ using Google;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 using System.Linq;
+using UnityEngine.Networking;
 public class GoogleSignInDemo : MonoBehaviour
 {
 
@@ -114,6 +115,7 @@ public class GoogleSignInDemo : MonoBehaviour
                     AddToInformation("sign in successful");
                     Debug.Log(task.Result.Email);
                     userEmail = task.Result.Email;
+                    CallLoginWithEmail(userEmail);
                     UnityEngine.SceneManagement.SceneManager.LoadScene(3);
             }
             
@@ -138,6 +140,26 @@ public class GoogleSignInDemo : MonoBehaviour
 
         AddToInformation("calling games signin");
         GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnAuthenticationFinished);
+    }
+
+
+    public void CallLoginWithEmail(string eu){
+        StartCoroutine(LoginWithEmail(eu));
+    }
+
+    IEnumerator LoginWithEmail(string emailuser){
+        // email = userEmail;
+        var uwr = new UnityWebRequest("https://smart-car-park-api.appspot.com/user/googleSignIn/" + emailuser, "POST");
+    
+        yield return uwr.SendWebRequest();
+
+        if (uwr.isNetworkError){
+            Debug.Log("giderken hata oldu "+uwr.error);
+        }
+        else{
+            userEmail = uwr.downloadHandler.text;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+        }
     }
 
     

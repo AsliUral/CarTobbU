@@ -33,7 +33,7 @@ public class ChangePassword : MonoBehaviour
             Debug.Log("giderken hata oldu "+uwr.error);
         }
         else{
-            Debug.Log(uwr.downloadHandler.text);
+            //Debug.Log(uwr.downloadHandler.text);
             UnityEngine.SceneManagement.SceneManager.LoadScene(2);
         }
     
