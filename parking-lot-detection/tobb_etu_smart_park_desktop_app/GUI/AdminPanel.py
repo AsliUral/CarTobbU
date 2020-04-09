@@ -25,6 +25,7 @@ parkZoneID = "global"
 parkZoneName = "global"
 
 apiKey = "ABC"
+tempUi = None
 globalAPI = smart_car_park_python_api.SmartCarParkAPI(cameraIP=cameraID,
                                                       parkZoneID=parkZoneID,
                                                       apiKey = apiKey,
@@ -681,24 +682,26 @@ class Ui_MainWindow():
         #self.dockWidget2.setWindowTitle(_translate("MainWindow", "Parking Slots"))
         #self.actionSub_menu.setToolTip(_translate("MainWindow", "submenu"))
 
-class LoginForm(QWidget):
+class LoginForm(QtWidgets.QWidget):
+    switch_window = QtCore.pyqtSignal()
+
     def __init__(self):
         super().__init__()
-
+        QtWidgets.QWidget.__init__(self)
         self.setWindowTitle('Login Form')
         self.setWindowState(Qt.WindowActive)
-        #self.resize(500, 120)
+        self.resize(500, 120)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
 
-        layout = QGridLayout()
+        self.layout = QGridLayout()
 
         label_name = QLabel("Username",self)
         self.lineEdit_username = QLineEdit()
         self.lineEdit_username.setPlaceholderText('Please enter your username')
-        layout.addWidget(label_name, 0, 0)
-        layout.addWidget(self.lineEdit_username, 0, 1)
+        self.layout.addWidget(label_name, 0, 0)
+        self.layout.addWidget(self.lineEdit_username, 0, 1)
 
         labelPassword = QLabel("Password", self)
         labelPassword.move(60, 224)
@@ -715,14 +718,27 @@ class LoginForm(QWidget):
         self.lineEditPassword.setPlaceholderText('Please enter your password')
 
 
-        layout.addWidget(labelPassword)
-        layout.addWidget(self.lineEditPassword, 1,1)
+        self.layout.addWidget(labelPassword)
+        self.layout.addWidget(self.lineEditPassword, 1,1)
+
+
+        self.l1 = QLabel()
+        self.l1.setText("Wrong password or username try again")
+
 
         button_login = QPushButton('Login')
         button_login.clicked.connect(self.check_password)
-        layout.addWidget(button_login, 2, 0, 1, 2)
-        layout.setRowMinimumHeight(2, 75)
-        self.setLayout(layout)
+        self.layout.addWidget(button_login, 2, 0, 1, 2)
+        self.layout.setRowMinimumHeight(2, 75)
+
+        button_register = QPushButton('Register')
+        button_register.clicked.connect(self.register)
+        self.layout.addWidget(button_register, 3, 0, 1, 2)
+        self.layout.setRowMinimumHeight(2, 75)
+        self.setLayout(self.layout)
+
+    def register(self):
+        self.switch_window.emit()
 
 
     def center(self):
@@ -743,21 +759,139 @@ class LoginForm(QWidget):
 
         if val == True :
             blur = 0
-            self.main.setChange(blur=blur)
+            tempUi.setChange(blur=blur)
             self.close()
             self.destroy()
             #sys.exit(msg.exec_())
         else:
-            msg.setText('Incorrect Password')
-            msg.exec_()
+            self.layout.addWidget(self.l1, 3, 0, 1, 2)
+            self.l1.setStyleSheet("color:red")
+
+class RegisterForm(QtWidgets.QWidget):
+    switch_window = QtCore.pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        QtWidgets.QWidget.__init__(self)
+        self.setWindowTitle('Register Form')
+        self.setWindowState(Qt.WindowActive)
+        self.resize(500, 120)
+        self.center()
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint)
+
+        self.layout = QGridLayout()
+
+        label_name = QLabel("Username", self)
+        self.lineEdit_username = QLineEdit()
+        self.lineEdit_username.setPlaceholderText('Please enter your username')
+        self.layout.addWidget(label_name, 0, 0)
+        self.layout.addWidget(self.lineEdit_username, 0, 1)
+
+        label_name_full = QLabel("Full Name", self)
+        self.lineEdit_username_full = QLineEdit()
+        self.lineEdit_username_full.setPlaceholderText('Please enter your fullname')
+        self.layout.addWidget(label_name_full, 2, 0)
+        self.layout.addWidget(self.lineEdit_username_full, 2, 1)
+
+        """
+        email = QLabel("Email", self)
+        self.lineEdit_email = QLineEdit()
+        self.lineEdit_email.setPlaceholderText('Please enter your email')
+        self.layout.addWidget(email, 4, 0)
+        self.layout.addWidget(self.lineEdit_email, 4, 1)
+
+        phone_number = QLabel("PhoneNumber", self)
+        self.lineEdit_phone_number = QLineEdit()
+        self.lineEdit_phone_number.setPlaceholderText('Please enter your phone number')
+        self.layout.addWidget(phone_number, 8, 0)
+        self.layout.addWidget(self.lineEdit_phone_number, 8, 1)
+        """
+        labelPassword = QLabel("Password", self)
+        labelPassword.move(60, 224)
+
+        framePassword = QFrame(self)
+        framePassword.setFrameShape(QFrame.StyledPanel)
+        framePassword.move(60, 250)
+
+        self.lineEditPassword = QLineEdit(framePassword)
+        self.lineEditPassword.setFrame(False)
+        self.lineEditPassword.setEchoMode(QLineEdit.Password)
+        self.lineEditPassword.setTextMargins(8, 0, 4, 1)
+        self.lineEditPassword.move(40, 1)
+        self.lineEditPassword.setPlaceholderText('Please enter your password')
+
+        self.layout.addWidget(labelPassword)
+        self.layout.addWidget(self.lineEditPassword, 3, 1)
+
+        button_register = QPushButton('Register')
+        button_register.clicked.connect(self.register_function)
+        self.layout.addWidget(button_register, 12, 0, 1, 2)
+        self.layout.setRowMinimumHeight(12, 75)
+
+
+        button_register = QPushButton('Back To Login')
+        button_register.clicked.connect(self.login)
+        self.layout.addWidget(button_register, 14, 0, 1, 2)
+        self.layout.setRowMinimumHeight(14, 75)
+        self.setLayout(self.layout)
+
+    def login(self):
+        self.close()
+        self.destroy()
+        self.switch_window.emit()
+
+    def center(self):
+        frameGm = self.frameGeometry()
+        print(frameGm)
+        screen = PyQt5.QtWidgets.QApplication.desktop().screenNumber(
+            PyQt5.QtWidgets.QApplication.desktop().cursor().pos())
+        centerPoint = PyQt5.QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        frameGm.moveCenter(centerPoint)
+        self.move(frameGm.topLeft())
+
+    def register_function(self):
+
+        username = self.lineEdit_username.text()
+        password =  self.lineEditPassword.text()
+        fullname =  self.lineEdit_username_full.text()
+
+
+        val = globalAPI.register(username,fullname,password)
+
+        if val == True :
+            print("basarili")
+            #sys.exit(msg.exec_())
+        else:
+            self.layout.addWidget(self.l1, 3, 0, 1, 2)
+            self.l1.setStyleSheet("color:red")
+
+
+class Controller:
+
+    def __init__(self):
+        pass
+
+    def show_login(self):
+        self.login = LoginForm()
+        self.login.switch_window.connect(self.show_main)
+        self.login.show()
+
+
+    def show_main(self):
+        self.window = RegisterForm()
+        self.window.switch_window.connect(self.show_login)
+        self.login.close()
+        self.window.show()
+
+
 
 def main():
 
     app = QtWidgets.QApplication(sys.argv)
     window = QtWidgets.QMainWindow()
-    form = LoginForm()
-    form.show()
 
+    form = LoginForm()
     getattr(form, "raise")()
     form.activateWindow()
 
@@ -765,7 +899,15 @@ def main():
     #window.setGraphicsEffect(QtWidgets.QGraphicsBlurEffect())
     ui = Ui_MainWindow()
     ui.setupUi(window)
+
+
+    global tempUi
+    tempUi = ui
+
     form.main = ui
+    controller = Controller()
+    controller.show_login()
+
     thread = QtCore.QThread()
     thread.start()
     cameraList = ["tobb_etu_main.mp4", "parking_lot_1.mp4"]

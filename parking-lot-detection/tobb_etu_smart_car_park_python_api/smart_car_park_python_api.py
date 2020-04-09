@@ -124,3 +124,25 @@ class SmartCarParkAPI:
            successLogin = False
            return successLogin
 
+  def register(self, username, fullname, password):
+      URL = self.apiEndpoint
+      user = {
+          "username": username,
+          "password": password,
+          "personFullName": fullname,
+          "userType":"Admin",
+          "allowedCarParks":"Academic Only Car Park"
+
+      }
+
+      response = requests.post(url=URL + "/user/register", data=user)
+      print(response.status_code)
+      if response.status_code == 200:
+          successRegister = True
+          return successRegister
+      else:
+          print("Register problem")
+          successRegister = False
+          return successRegister
+
+
