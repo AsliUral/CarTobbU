@@ -9,5 +9,8 @@ public class ParkingLots
     public string SecondPoint;
     public string ThirdPoint;
     public string FourthPoint;
+    public string SelectedStatus;
+    public string ApiKey;
+    public string SelectTime;
 
 }
