@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Globalization;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 public class RequestScript : MonoBehaviour{
 public static ParkingLots[] parkingLotsArray;
 public string userType;
@@ -13,11 +14,14 @@ Cars[] carsArray;
 public static int numAvailable;
 public GameObject car;
 private List<GameObject> carList;
-private int count =0;
+public Text txt;
+
     public void Start(){
-            Debug.Log("tttt"+DateTime.Now);
-            StartCoroutine(check());
-  
+        
+        txt.GetComponent<Text>().text = GoogleSignInDemo.userEmail;
+         
+        StartCoroutine(coroutine());
+
     }
     
     public IEnumerator coroutineStudent(){
