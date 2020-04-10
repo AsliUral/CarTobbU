@@ -104,7 +104,7 @@ public class PathFinder : MonoBehaviour
                     Vector3 hitPoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
                     GenerateAgentPath(hitPoint);
                     DrawLine();
-                    
+                    GameObject.Find("DialogText").GetComponent<UnityEngine.UI.Text>().text = "Seçtiğiniz yere yönlendirildiniz!";
                     //MoveOnPath();
                     //GetVoiceNavigation(pathAgent);
                     //StartCoroutine(MoveOnPath());
