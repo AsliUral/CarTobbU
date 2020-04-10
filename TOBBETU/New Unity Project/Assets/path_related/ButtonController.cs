@@ -54,5 +54,29 @@ public class ButtonController : MonoBehaviour
 
     }
 
+    public void InitializeShortestPathClick()
+    {
+        if (shortestButtonClicked == true)
+        {
+            shortestButtonClicked = false;
+            text.SetActive(false);
+        }
+        else
+        {
+            shortestButtonClicked = true;
+            text.SetActive(true);
+            finder.MoveOnShortestClick();
+        }
+
+    }
+
+    public void ResetEverything()
+    {
+        shortestButtonClicked = false;
+        selectedButtonClicked = false;
+        text.SetActive(false);
+        finder.ResetEverything();
+    }
+
 
 }
