@@ -150,7 +150,10 @@ public class PathFinder : MonoBehaviour
 
     public void MoveOnShortestClick()
     {
-
+        print("Getting shortest available parking spot!");
+        Transform t = GetClosestParkingSpot(availableSpots);
+        GenerateAgentPath(t.position);
+        DrawLine();
     }
 
     public void ResetShortestPath()
