@@ -27873,9 +27873,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab1c896e4fc46e142bd1417b70d5f1c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  marker: {fileID: 100000, guid: e9e467f815ee0a34696d9a9326a5dc08, type: 3}
+  marker: {fileID: 5146680285259124887, guid: 3a1d3afa6486bfa46af81940682c14ae, type: 3}
   current: {fileID: 0}
   flag: 0
+--- !u!114 &1031262105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031262102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b0097aee0703614e834ca39699801bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentTime: 0
+  startTime: 60
+  finishTime: 0
 --- !u!114 &1031262106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27888,6 +27903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e84ffb94525ca04ab2f07fd81fd6e38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  userType: 
   car: {fileID: 859161265391342116, guid: b82b8a532ec3146be9e48a1f65c96c17, type: 3}
 --- !u!114 &1031262109
 MonoBehaviour:
@@ -48935,7 +48951,6 @@ GameObject:
   - component: {fileID: 1964181620}
   - component: {fileID: 1964181619}
   - component: {fileID: 1964181621}
-  - component: {fileID: 1964181622}
   m_Layer: 0
   m_Name: NotificationManager
   m_TagString: Untagged
@@ -48981,18 +48996,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d251715f6245df4bb38af0383574a78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1964181622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1964181618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a978a3ff27cf0b4e967a59da777ae6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1964556094
