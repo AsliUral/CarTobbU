@@ -60,7 +60,7 @@ public class show : MonoBehaviour
                 }
               }
             }
-            yield return new WaitForSeconds(5);
+            yield return new WaitForSeconds(2);
         }
          
         

@@ -2,12 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using System.Collections;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
 
 public class AddMarker : MonoBehaviour
 {
@@ -19,16 +15,13 @@ public class AddMarker : MonoBehaviour
     public float flag=0;
     RaycastHit hitInfo;
     //public float flag=0;
-    
-     void Start()
+    public void Start()
     {
-        
-       
     }
     // Update is called once per frame
      void Update()
     {
-           
+        if(Login.apiKey!=null){
         /*UnityWebRequest www = UnityWebRequest.Get("https://smart-car-park-api.appspot.com/marking");
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError){
@@ -124,7 +117,7 @@ public class AddMarker : MonoBehaviour
             
         }
 
-      
+        }
      } 
     
      public string fixJson(string value)

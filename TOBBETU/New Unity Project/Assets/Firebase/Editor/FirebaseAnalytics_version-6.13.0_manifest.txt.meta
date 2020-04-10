@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 68a1630c6c3d4db79ab03743998665eb
+labels:
+- gvh
+- gvh_manifest
+- gvh_version-6.13.0
+- gvhp_exportpath-Firebase/Editor/FirebaseAnalytics_version-6.13.0_manifest.txt
+- gvhp_exportpath-Firebase\Editor\FirebaseAnalytics_version-6.13.0_manifest.txt
+- gvhp_manifestname-0Google Analytics for Firebase
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
