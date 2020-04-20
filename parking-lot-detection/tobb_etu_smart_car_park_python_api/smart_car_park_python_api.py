@@ -147,4 +147,7 @@ class SmartCarParkAPI:
           successRegister = False
           return successRegister
 
-
+  def forgotPassword(self,email ):
+    URL = self.apiEndpoint
+    response = requests.get(url = URL +"/user/forgotMyPassword/"+ email)
+    print(response)

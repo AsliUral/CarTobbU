@@ -1,3 +1,4 @@
+import calendar
 import re
 import sys
 import time
@@ -31,6 +32,9 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import (QApplication, QDialog,
                              QProgressBar, QPushButton)
 
+from datetime import datetime
+from tobb_etu_smart_car_park_log import LogDBHandler
+
 blur = QtWidgets.QGraphicsBlurEffect(blurRadius=5)
 cameraID = "global"
 parkZoneID = "global"
@@ -50,16 +54,11 @@ def getParkingZone():
     #zones_JSON[i]["ParkZoneName"] this will change with zones_JSON[i]["CameraIP"] after server update
     for i in range(len(zones_JSON)):
         if (zones_JSON[i]["ParkZoneName"] is not None and zones_JSON[i]["ParkZoneName"] != ''):
-            cameraIP = "151.654.15.76"
-            if counter == 0:
-                cameraIP = "151.654.15.76"
-            elif counter == 1:
-                cameraIP = "151.654.15.75"
             parkzones.append(ParkingZone(
                 parkingZoneID=zones_JSON[i]["ParkingZoneID"],
                 parkZoneName=zones_JSON[i]["ParkZoneName"],
                 API=globalAPI,
-                cameraIP=cameraIP + ".mp4"
+                cameraIP=str(zones_JSON[i]["CameraIP"]) + ".mp4"
             ))
             counter += 1
     return parkzones
@@ -485,6 +484,12 @@ class Ui_MainWindow():
                 self.manager.parking_lots.remove(parking_lot)
                 # self.parkingLots.remove(parking_lot)
 
+    def findDay(self,date):
+        year, month, day = (int(i) for i in date.split('-'))
+        dayNumber = calendar.weekday(year, month, day)
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday",
+                "Friday", "Saturday", "Sunday"]
+        return (days[dayNumber])
 
 
 
@@ -496,6 +501,16 @@ class Ui_MainWindow():
         cameraConnectionFailedCounter = 0
         cameraCount = 2
         while(True):
+
+            minute = datetime.now().minute
+
+            if minute == 60:
+                time = datetime.now().time()
+                date = datetime.now().date()
+                day = self.findDay(str(date))
+                obj = LogDBHandler.LogDB()
+                obj.log(time,date,day)
+
             counter = 0
             if (cameraConnectionFailedCounter == cameraCount):
                 break
@@ -756,9 +771,6 @@ class LoginForm(QtWidgets.QWidget):
         self.setWindowTitle('Login To CarTobbU')
         self.setWindowState(Qt.WindowActive)
         self.resize(500, 120)
-        p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.red)
-        self.setPalette(p)
         self.center()
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setWindowFlags(Qt.WindowMinimizeButtonHint  | Qt.WindowStaysOnTopHint)
@@ -774,14 +786,14 @@ class LoginForm(QtWidgets.QWidget):
         labelPassword.move(60, 224)
 
         framePassword = QFrame(self)
-        #framePassword.setFrameShape(QFrame.StyledPanel)
-        #framePassword.move(60, 250)
+        framePassword.setFrameShape(QFrame.StyledPanel)
+        framePassword.move(60, 250)
 
         self.lineEditPassword = QLineEdit(framePassword)
         self.lineEditPassword.setFrame(False)
         self.lineEditPassword.setEchoMode(QLineEdit.Password)
-        #self.lineEditPassword.setTextMargins(8, 0, 4, 1)
-        #self.lineEditPassword.move(40, 1)
+        self.lineEditPassword.setTextMargins(8, 0, 4, 1)
+        self.lineEditPassword.move(40, 1)
         self.lineEditPassword.setPlaceholderText('Please enter your password')
 
 
@@ -989,10 +1001,10 @@ class RegisterForm(QtWidgets.QWidget):
         self.layout.addWidget(self.lineEdit_phone_number, 6, 1)
 
         labelPassword = QLabel("Password", self)
-        #labelPassword.move(60, 224)
+        labelPassword.move(60, 224)
 
         framePassword = QFrame(self)
-        #framePassword.setFrameShape(QFrame.StyledPanel)
+        framePassword.setFrameShape(QFrame.StyledPanel)
         #framePassword.move(60, 250)
 
         self.lineEditPassword = QLineEdit(framePassword)
@@ -1035,7 +1047,7 @@ class RegisterForm(QtWidgets.QWidget):
 
 
         labelPasswordCheck = QLabel("Enter Password Again", self)
-        #labelPasswordCheck.move(60, 224)
+        labelPasswordCheck.move(60, 224)
 
         framePasswordCheck = QFrame(self)
         #framePasswordCheck.setFrameShape(QFrame.StyledPanel)
