@@ -13,15 +13,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/storage": "^4.0.0",
     "body-parser": "^1.19.0",
+    "ejs": "2.5.6",
     "express": "^4.17.1",
+    "express-fileupload": "^0.1.1",
+    "multer": "^1.4.2",
     "mysql": "^2.17.1",
     "nodemailer": "^6.4.6",
+    "req-flash": "0.0.3",
+    "then-busboy": "^1.4.0",
     "uuid-apikey": "^1.4.6"
   },
   "devDependencies": {
     "@google-cloud/nodejs-repo-tools": "^3.3.0",
-    "@google-cloud/storage": "^4.0.0",
+    "@google-cloud/storage": "^4.7.0",
     "mocha": "^7.0.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.0",
@@ -29,5 +35,23 @@
   },
   "engines": {
     "node": "10.x"
+  },
+  "cloud-repo-tools": {
+    "requiresProjectId": true,
+    "requiresKeyFile": true,
+    "test": {
+      "app": {
+        "requiredEnvVars": [
+          "GCLOUD_STORAGE_BUCKET"
+        ],
+        "msg": "<input type=\"file\" name=\"file\">",
+        "substitutions": "YOUR_BUCKET_NAME=$GCLOUD_STORAGE_BUCKET"
+      },
+      "build": {
+        "requiredEnvVars": [
+          "GCLOUD_STORAGE_BUCKET"
+        ]
+      }
+    }
   }
 }
