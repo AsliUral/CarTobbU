@@ -21,11 +21,23 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpResponse;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,7 +48,7 @@ public class ComplaintListActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private ImageView imageView;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
-
+    private ArrayList<Complaint> complaints = new ArrayList<Complaint>();
 
     public void getPhoto() {
 
@@ -172,32 +184,83 @@ public class ComplaintListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_complaint_list);
-        setTitle("Complaint Feed");
-        final ArrayList<String> usernames = new ArrayList<String>();
+        setTitle("Complaints");
+        final ArrayList<String> complaintsList = new ArrayList<String>();
         final ListView userListView = (ListView) findViewById(R.id.userListView);
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), ComplaintFeedActivity.class);
-                intent.putExtra("username", usernames.get(i));
+                Complaint temp = complaints.get(i);
+
+                intent.putExtra("note", temp.getNotes());
+                intent.putExtra("carplate", temp.getCarPlate());
+                intent.putExtra("date", temp.getDate());
+                intent.putExtra("fullname", temp.getFullname());
+                intent.putExtra("time", temp.getTime());
+                intent.putExtra("phone", temp.getPhoneNumber());
+
+
                 startActivity(intent);
             }
         });
-        final ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, usernames);
+        final ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, complaintsList);
         //ParseQuery<ParseUser> query = ParseUser.getQuery();
         //query.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
         //query.addAscendingOrder("username");
 
-        usernames.add("Y9");
-        usernames.add("T112");
-        usernames.add("Y24");
-        usernames.add("M16");
-        usernames.add("M95");
-        usernames.add("Y12");
-        usernames.add("T7");
-        usernames.add("M62");
 
-        userListView.setAdapter(arrayAdapter);
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://smart-car-park-api.appspot.com/getPenalties";
+
+// Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        JSONArray jsonArray = null;
+                        try {
+                            jsonArray = new JSONArray(response);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            try {
+                                JSONObject explrObject = jsonArray.getJSONObject(i);
+                                if (explrObject.get("type").toString().equals("null")){
+                                    String date = explrObject.get("date").toString();
+                                    String time = explrObject.get("time").toString();
+                                    String notes = explrObject.get("notes").toString();
+                                    String carPlate = explrObject.get("carPlate").toString();
+                                    String fullname = explrObject.get("fullname").toString();
+                                    String phoneNumber = explrObject.get("phoneNumber").toString();
+                                    complaints.add(new Complaint(date, time, carPlate, notes, fullname, phoneNumber));
+                                    complaintsList.add(notes);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        userListView.setAdapter(arrayAdapter);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+
+    }
+
+
 
         /*
         query.findInBackground(new FindCallback<ParseUser>() {
@@ -217,4 +280,4 @@ public class ComplaintListActivity extends AppCompatActivity {
         });
         */
     }
-}
+

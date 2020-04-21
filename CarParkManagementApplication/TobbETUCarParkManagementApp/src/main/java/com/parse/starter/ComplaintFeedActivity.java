@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -20,19 +21,56 @@ import java.util.List;
 
 public class ComplaintFeedActivity extends AppCompatActivity {
 
+
+    EditText notesText;
+    EditText carPlateText;
+    EditText nameText;
+    EditText phoneText;
+    EditText timeText;
+    EditText dateText;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_complaint_feed);
 
 
-        final LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linearLayout);
 
         Intent intent = getIntent();
 
-        String activeUsername = intent.getStringExtra("username");
+        String activeUsername = intent.getStringExtra("note");
+        String carPlateString = intent.getStringExtra("carplate");
+        String dateString = intent.getStringExtra("date");
+        String fullNameString = intent.getStringExtra("fullname");
+        String timeString = intent.getStringExtra("time");
+        String phoneString = intent.getStringExtra("phone");
 
-        setTitle(activeUsername + "'s Feed");
+
+
+        notesText= (EditText) findViewById(R.id.notes_text);
+        notesText.setText(activeUsername);
+
+        carPlateText= (EditText) findViewById(R.id.carPlateText);
+        carPlateText.setText(carPlateString);
+
+        dateText= (EditText) findViewById(R.id.dateText);
+        dateText.setText(dateString);
+
+
+        nameText= (EditText) findViewById(R.id.nameText);
+        nameText.setText(fullNameString);
+
+        timeText= (EditText) findViewById(R.id.timeText);
+        timeText.setText(timeString);
+
+        phoneText= (EditText) findViewById(R.id.phoneText);
+        phoneText.setText(phoneString);
+
+
+
+
+        setTitle(fullNameString + "'s Complaint");
 
         ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Image");
 
@@ -68,7 +106,7 @@ public class ComplaintFeedActivity extends AppCompatActivity {
 
                                         imageView.setImageBitmap(bitmap);
 
-                                        linearLayout.addView(imageView);
+                                        //linearLayout.addView(imageView);
 
                                     }
 
